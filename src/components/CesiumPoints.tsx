@@ -6,7 +6,7 @@ type CesiumPointsProps = {
     points: number[];
     onClick: (e: CesiumMovementEvent, entity: any) => void;
 }
-export const CesiumPoints : Function = (props : CesiumPointsProps): JSX.Element[] => {
+export const CesiumPoints: Function = (props: CesiumPointsProps): JSX.Element[] => {
     let pointGraphics = [];
     for (let i = 0; i < props.points.length; i += 2) {
         let x = props.points[i]
