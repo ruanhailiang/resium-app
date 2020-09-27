@@ -20,6 +20,7 @@
     "react-hot-loader": "^4.12.21",
     "react-scripts": "3.4.3",
     "resium": "~1.11.0",
+    "serve": "^11.3.2",
     "typescript": "^3.9.7"
   },
   "scripts": {
