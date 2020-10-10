@@ -19,7 +19,7 @@
     "react-dom": "^16.13.1",
     "react-hot-loader": "^4.12.21",
     "react-scripts": "3.4.3",
-    "resium": "~1.11.0",
+    "resium": "^1.13.0",
     "typescript": "^3.9.7"
   },
   "scripts": {

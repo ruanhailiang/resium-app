@@ -55,7 +55,7 @@ export default class CesiumMap extends React.Component<any, MyState> {
     }
 
     addPoint = (e: CesiumMovementEvent, entity: any) => {
-        if (this.state.isCreatePolygon) {
+        if (this.state.isCreatePolygon && e.position) {
             let coords = this.getLocationFromScreenXY(e.position.x, e.position.y);
             if (coords) {
                 this.setState(prevState => ({

@@ -6,7 +6,7 @@ export const CesiumPolygon = (props: { positions: number[] }) => (
     props.positions.length > 1 ?
         <Entity name="PolygonGraphics" description="PolygonGraphics">
             <PolygonGraphics
-                hierarchy={Cartesian3.fromDegreesArray(props.positions)}
+                hierarchy={Cartesian3.fromDegreesArray(props.positions) as any}
                 material={Color.RED.withAlpha(0.28)}
             />
         </Entity> : null
