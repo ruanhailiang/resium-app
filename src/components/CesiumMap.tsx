@@ -12,7 +12,7 @@ type MyState = {
     points: number[];
     polygons: number[][];
     polygonEdit: number[];
-    isCreatePolygon: boolean;
+    // isCreatePolygon: boolean;
     isNewEditPoint: boolean;
 };
 
@@ -34,7 +34,6 @@ export default class CesiumMap extends React.Component<any, MyState> {
             points: [],
             polygons: [],
             polygonEdit: [],
-            isCreatePolygon: false,
             isNewEditPoint: true
         }
         this.addPolygon = this.addPolygon.bind(this);
@@ -55,7 +54,7 @@ export default class CesiumMap extends React.Component<any, MyState> {
     }
 
     addPoint = (e: CesiumMovementEvent, entity: any) => {
-        if (this.state.isCreatePolygon && e.position) {
+        if (this.props.isCreatePolygon && e.position) {
             let coords = this.getLocationFromScreenXY(e.position.x, e.position.y);
             if (coords) {
                 this.setState(prevState => ({
@@ -68,11 +67,11 @@ export default class CesiumMap extends React.Component<any, MyState> {
     }
 
     addPolygon = () => {
+        this.props.handleCreatePolygonEnd();
         this.setState(prevState => ({
             points: [],
             polygons: [...prevState.polygons, prevState.points],
-            polygonEdit: [],
-            isCreatePolygon: false
+            polygonEdit: []
         }))
         console.log("Polygons test", this.state.polygons)
     }
@@ -97,9 +96,10 @@ export default class CesiumMap extends React.Component<any, MyState> {
         }
     }
 
-    startCreatingPolygon = () => {
-        this.setState({isCreatePolygon: true})
-    }
+    // startCreatingPolygon = () => {
+    //     // this.setState({isCreatePolygon: true})
+    //     this.props.handlePolygonStart();
+    // }
 
     render() {
         return (
@@ -109,9 +109,9 @@ export default class CesiumMap extends React.Component<any, MyState> {
                 <CesiumPolygons polygons={this.state.polygons}/>
                 <CesiumPoints points={this.state.points} onClick={this.addPolygon}/>
                 <CesiumPolygon positions={this.state.polygonEdit} key="PolygonEdit"/>
-                <button style={{left: '250px', top: '65px', position: 'fixed'}}
-                        onClick={this.state.isCreatePolygon ? this.addPolygon : this.startCreatingPolygon}> {this.state.isCreatePolygon ? "Stop Draw" : "Start Draw"}
-                </button>
+                {/*<button style={{left: '250px', top: '65px', position: 'fixed'}}*/}
+                {/*        onClick={this.props.isCreatePolygon ? this.addPolygon : this.startCreatingPolygon}> {this.props.isCreatePolygon ? "Stop Draw" : "Start Draw"}*/}
+                {/*</button>*/}
             </Viewer>
         )
     }
