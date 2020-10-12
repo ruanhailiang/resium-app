@@ -62,7 +62,7 @@ export default function NavDrawer(props: NavDrawerProps) {
             <List>
                 <ListItem button key={"DrawPolygon"} onClick={props.onPolygonOptionClick}>
                     <ListItemIcon><Grade/></ListItemIcon>
-                    <ListItemText primary={props.createPolygon ? "Drawing Polygon" : "Draw Polygon"}/>
+                    <ListItemText primary={props.createPolygon ? "Stop Draw Polygon" : "Draw Polygon"}/>
                 </ListItem>
             </List>
         </Drawer>

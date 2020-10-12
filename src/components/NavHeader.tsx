@@ -41,13 +41,6 @@ type NavHeaderProps = {
 
 export default function NavHeader(props: NavHeaderProps) {
     const classes = useStyles();
-    // const [open, setOpen] = React.useState(false);
-
-    // const handleDrawerOpen = () => {
-    //     setOpen(true);
-    // };
-
-
     return (
         <AppBar
             position="fixed"

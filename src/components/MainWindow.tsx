@@ -5,6 +5,7 @@ import clsx from "clsx";
 import CesiumMap from "./CesiumMap";
 import NavHeader from "./NavHeader";
 import NavDrawer from "./NavDrawer";
+import {Math} from "cesium";
 
 const drawerWidth = 240;
 
@@ -12,33 +13,6 @@ const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
             display: 'flex',
-        },
-        appBar: {
-            transition: theme.transitions.create(['margin', 'width'], {
-                easing: theme.transitions.easing.sharp,
-                duration: theme.transitions.duration.leavingScreen,
-            }),
-        },
-        appBarShift: {
-            width: `calc(100% - ${drawerWidth}px)`,
-            marginLeft: drawerWidth,
-            transition: theme.transitions.create(['margin', 'width'], {
-                easing: theme.transitions.easing.easeOut,
-                duration: theme.transitions.duration.enteringScreen,
-            }),
-        },
-        menuButton: {
-            marginRight: theme.spacing(2),
-        },
-        hide: {
-            display: 'none',
-        },
-        drawer: {
-            width: drawerWidth,
-            flexShrink: 0,
-        },
-        drawerPaper: {
-            width: drawerWidth,
         },
         drawerHeader: {
             display: 'flex',
@@ -67,11 +41,25 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
+export interface IShapeState {
+    points: Array<number>;
+    polygons: Array<Array<number>>;
+    polygonEdit: Array<number>;
+    newEditPoint: boolean;
+}
+
 export default function MainWindow(this: any) {
     const classes = useStyles();
-    const theme = useTheme();
     const [open, setOpen] = React.useState(false);
     const [createPolygon, setCreatePolygon] = React.useState(false);
+    // const [newEditPoint, setNewEditPoint] = React.useState(true);
+
+    const [shapeState, setShapeState] = React.useState<IShapeState>({
+        points: [],
+        polygons: [],
+        polygonEdit: [],
+        newEditPoint: true
+    });
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -82,18 +70,48 @@ export default function MainWindow(this: any) {
     };
 
     const handlePolygonOptionClick = () => {
-        setCreatePolygon(!createPolygon);
+        if (createPolygon) {
+            addPolygon();
+        } else {
+            setCreatePolygon(true);
+        }
+    }
+    const addPoint = (longitude: number, latitude: number) => {
+        setShapeState(prevState => ({
+            ...prevState,
+            points: [...prevState.points, longitude, latitude],
+            polygonEdit: [...prevState.points, longitude, latitude],
+            newEditPoint: true
+        }))
     }
 
-    const handleCreatePolygonStart = () => {
-        console.log("Create Polygon Start")
-        setCreatePolygon(true);
-    };
-
-    const handleCreatePolygonEnd = () => {
-        console.log("Create Polygon End")
+    const addPolygon = () => {
         setCreatePolygon(false);
-    };
+        setShapeState(prevState => ({
+            ...prevState,
+            points: [],
+            polygons: [...prevState.polygons, prevState.points],
+            polygonEdit: []
+        }))
+    }
+
+    const modifyPolygon = (longitude: number, latitude: number) => {
+        //potential sync issues?
+        let newPolygonEdit = [...shapeState.polygonEdit];
+        if (shapeState.newEditPoint) {
+            //add new point
+            newPolygonEdit.push(longitude, latitude);
+        } else {
+            //edit last point
+            newPolygonEdit[newPolygonEdit.length - 2] = longitude;
+            newPolygonEdit[newPolygonEdit.length - 1] = latitude;
+        }
+        setShapeState(prevState => ({
+            ...prevState,
+            polygonEdit: newPolygonEdit,
+            newEditPoint: false
+        }))
+    }
 
     return (
         <div className={classes.root}>
@@ -107,9 +125,9 @@ export default function MainWindow(this: any) {
                 })}
             >
                 <div className={classes.drawerHeader}/>
-                <CesiumMap isCreatePolygon={createPolygon}
-                           handleCreatePolygonStart={handleCreatePolygonStart}
-                           handleCreatePolygonEnd={handleCreatePolygonEnd}/>
+                <CesiumMap addPoint={addPoint} addPolygon={addPolygon} isCreatePolygon={createPolygon}
+                           isNewEditPoint={shapeState.newEditPoint} modifyPolygon={modifyPolygon}
+                           points={shapeState.points} polygonEdit={shapeState.polygonEdit} polygons={shapeState.polygons}/>
             </main>
         </div>
     );

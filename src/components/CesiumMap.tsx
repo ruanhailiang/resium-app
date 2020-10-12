@@ -8,12 +8,15 @@ import throttle from 'lodash.throttle';
 
 //https://github.com/darwin-education/resium/issues/219
 
-type MyState = {
+type CesiumMapProps = {
     points: number[];
     polygons: number[][];
     polygonEdit: number[];
-    // isCreatePolygon: boolean;
+    isCreatePolygon: boolean;
     isNewEditPoint: boolean;
+    addPoint: (lon: number, lat: number) => void;
+    addPolygon: () => void;
+    modifyPolygon: (lon: number, lat: number) => void;
 };
 
 type Coord = {
@@ -22,21 +25,14 @@ type Coord = {
     height: number;
 }
 
-export default class CesiumMap extends React.Component<any, MyState> {
+export default class CesiumMap extends React.Component<CesiumMapProps> {
     private viewer: any;
     //type?
     private readonly modifyPolygonThrottled: any;
 
-    constructor(props: any) {
+    constructor(props: CesiumMapProps) {
         super(props);
         // this.cesium = React.createRef();
-        this.state = {
-            points: [],
-            polygons: [],
-            polygonEdit: [],
-            isNewEditPoint: true
-        }
-        this.addPolygon = this.addPolygon.bind(this);
         this.modifyPolygon = this.modifyPolygon.bind(this);
         this.modifyPolygonThrottled = throttle(this.modifyPolygon, 100);
     }
@@ -57,61 +53,26 @@ export default class CesiumMap extends React.Component<any, MyState> {
         if (this.props.isCreatePolygon && e.position) {
             let coords = this.getLocationFromScreenXY(e.position.x, e.position.y);
             if (coords) {
-                this.setState(prevState => ({
-                    points: [...prevState.points, Math.toDegrees(coords!.longitude), Math.toDegrees(coords!.latitude)],
-                    polygonEdit: [...prevState.points, Math.toDegrees(coords!.longitude), Math.toDegrees(coords!.latitude)],
-                    isNewEditPoint: true
-                }))
+                this.props.addPoint(Math.toDegrees(coords!.longitude), Math.toDegrees(coords!.latitude));
             }
         }
-    }
-
-    addPolygon = () => {
-        this.props.handleCreatePolygonEnd();
-        this.setState(prevState => ({
-            points: [],
-            polygons: [...prevState.polygons, prevState.points],
-            polygonEdit: []
-        }))
-        console.log("Polygons test", this.state.polygons)
     }
 
     modifyPolygon = (e: { endPosition: { x: number; y: number; }; }, entity: any) => {
-        //TODO: potential sync issues?
         let coords = this.getLocationFromScreenXY(e.endPosition.x, e.endPosition.y);
         if (coords) {
-            let newPolygonEdit = [...this.state.polygonEdit];
-            if (this.state.isNewEditPoint) {
-                //add new point
-                newPolygonEdit.push(Math.toDegrees(coords.longitude), Math.toDegrees(coords.latitude));
-            } else {
-                //edit last point
-                newPolygonEdit[newPolygonEdit.length - 2] = Math.toDegrees(coords.longitude);
-                newPolygonEdit[newPolygonEdit.length - 1] = Math.toDegrees(coords.latitude);
-            }
-            this.setState({
-                polygonEdit: newPolygonEdit,
-                isNewEditPoint: false
-            })
+            this.props.modifyPolygon(Math.toDegrees(coords.longitude), Math.toDegrees(coords.latitude));
         }
     }
-
-    // startCreatingPolygon = () => {
-    //     // this.setState({isCreatePolygon: true})
-    //     this.props.handlePolygonStart();
-    // }
 
     render() {
         return (
             <Viewer ref={e => {
                 this.viewer = e ? e.cesiumElement : null;
             }} onClick={this.addPoint} onMouseMove={this.modifyPolygonThrottled}>
-                <CesiumPolygons polygons={this.state.polygons}/>
-                <CesiumPoints points={this.state.points} onClick={this.addPolygon}/>
-                <CesiumPolygon positions={this.state.polygonEdit} key="PolygonEdit"/>
-                {/*<button style={{left: '250px', top: '65px', position: 'fixed'}}*/}
-                {/*        onClick={this.props.isCreatePolygon ? this.addPolygon : this.startCreatingPolygon}> {this.props.isCreatePolygon ? "Stop Draw" : "Start Draw"}*/}
-                {/*</button>*/}
+                <CesiumPolygons polygons={this.props.polygons}/>
+                <CesiumPoints points={this.props.points} onClick={this.props.addPolygon}/>
+                <CesiumPolygon positions={this.props.polygonEdit} key="PolygonEdit"/>
             </Viewer>
         )
     }
