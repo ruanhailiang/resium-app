@@ -1,19 +1,10 @@
 import React from "react";
 import {createStyles, makeStyles, Theme, useTheme} from '@material-ui/core/styles';
-import Drawer from '@material-ui/core/Drawer';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import List from '@material-ui/core/List';
-import Divider from '@material-ui/core/Divider';
-import IconButton from '@material-ui/core/IconButton';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
 import clsx from "clsx";
 import CesiumMap from "./CesiumMap";
-import {Grade} from "@material-ui/icons";
 import NavHeader from "./NavHeader";
+import NavDrawer from "./NavDrawer";
 
 const drawerWidth = 240;
 
@@ -76,7 +67,7 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-export default function PersistentDrawer(this: any) {
+export default function MainWindow(this: any) {
     const classes = useStyles();
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
@@ -89,6 +80,10 @@ export default function PersistentDrawer(this: any) {
     const handleDrawerClose = () => {
         setOpen(false);
     };
+
+    const handlePolygonOptionClick = () => {
+        setCreatePolygon(!createPolygon);
+    }
 
     const handleCreatePolygonStart = () => {
         console.log("Create Polygon Start")
@@ -104,28 +99,8 @@ export default function PersistentDrawer(this: any) {
         <div className={classes.root}>
             <CssBaseline/>
             <NavHeader open={open} onClick={handleDrawerOpen}/>
-            <Drawer
-                className={classes.drawer}
-                variant="persistent"
-                anchor="left"
-                open={open}
-                classes={{
-                    paper: classes.drawerPaper,
-                }}
-            >
-                <div className={classes.drawerHeader}>
-                    <IconButton onClick={handleDrawerClose}>
-                        {theme.direction === 'ltr' ? <ChevronLeftIcon/> : <ChevronRightIcon/>}
-                    </IconButton>
-                </div>
-                <Divider/>
-                <List>
-                    <ListItem button key={"DrawPolygon"} onClick={handleCreatePolygonStart}>
-                        <ListItemIcon><Grade/></ListItemIcon>
-                        <ListItemText primary={createPolygon ? "Drawing Polygon" : "Draw Polygon"}/>
-                    </ListItem>
-                </List>
-            </Drawer>
+            <NavDrawer open={open} createPolygon={createPolygon} onIconClick={handleDrawerClose}
+                       onPolygonOptionClick={handlePolygonOptionClick}/>
             <main
                 className={clsx(classes.content, {
                     [classes.contentShift]: open,
