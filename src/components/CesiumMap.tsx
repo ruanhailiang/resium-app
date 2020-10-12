@@ -103,7 +103,7 @@ export default class CesiumMap extends React.Component<any, MyState> {
 
     render() {
         return (
-            <Viewer full ref={e => {
+            <Viewer ref={e => {
                 this.viewer = e ? e.cesiumElement : null;
             }} onClick={this.addPoint} onMouseMove={this.modifyPolygonThrottled}>
                 <CesiumPolygons polygons={this.state.polygons}/>
