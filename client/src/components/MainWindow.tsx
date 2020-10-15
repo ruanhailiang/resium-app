@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {createStyles, makeStyles, Theme, useTheme} from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import clsx from "clsx";
@@ -59,6 +59,12 @@ export default function MainWindow(this: any) {
         polygons: [],
         polygonEdit: [],
         newEditPoint: true
+    });
+
+    useEffect(() => {
+        fetch('/users')
+            .then(res => res.json())
+            .then(users => console.log(users));
     });
 
     const handleDrawerOpen = () => {
