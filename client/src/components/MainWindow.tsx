@@ -61,6 +61,7 @@ export default function MainWindow(this: any) {
         newEditPoint: true
     });
 
+    //TODO: Set up actual queries
     useEffect(() => {
         fetch('/users')
             .then(res => res.json())
