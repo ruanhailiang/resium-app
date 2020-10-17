@@ -1,5 +1,10 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+#Skyfield generated files
+deltat.data
+deltat.preds
+Leap_Second.dat
+
 # dependencies
 **/node_modules
 client/build/
