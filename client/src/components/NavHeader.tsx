@@ -6,11 +6,15 @@ import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import clsx from "clsx";
+import {Send} from "@material-ui/icons";
 
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
+        title: {
+            flexGrow: 1,
+        },
         appBar: {
             transition: theme.transitions.create(['margin', 'width'], {
                 easing: theme.transitions.easing.sharp,
@@ -30,13 +34,14 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         hide: {
             display: 'none',
-        },
+        }
     }),
 );
 
 type NavHeaderProps = {
     open: boolean;
-    onClick: () => void;
+    onMenuClick: () => void;
+    onSendClick: () => void;
 }
 
 export default function NavHeader(props: NavHeaderProps) {
@@ -52,15 +57,18 @@ export default function NavHeader(props: NavHeaderProps) {
                 <IconButton
                     color="inherit"
                     aria-label="open drawer"
-                    onClick={props.onClick}
+                    onClick={props.onMenuClick}
                     edge="start"
                     className={clsx(classes.menuButton, props.open && classes.hide)}
                 >
                     <MenuIcon/>
                 </IconButton>
-                <Typography variant="h6" noWrap>
+                <Typography variant="h6" className={classes.title} noWrap>
                     Resium App
                 </Typography>
+                <IconButton color="inherit" aria-label="send" onClick={props.onSendClick}>
+                    <Send/>
+                </IconButton>
             </Toolbar>
         </AppBar>
     );

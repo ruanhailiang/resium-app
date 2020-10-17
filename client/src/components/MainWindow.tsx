@@ -1,11 +1,10 @@
-import React, {useEffect} from "react";
-import {createStyles, makeStyles, Theme, useTheme} from '@material-ui/core/styles';
+import React from "react";
+import {createStyles, makeStyles, Theme} from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import clsx from "clsx";
 import CesiumMap from "./CesiumMap";
 import NavHeader from "./NavHeader";
 import NavDrawer from "./NavDrawer";
-import {Math} from "cesium";
 
 const drawerWidth = 240;
 
@@ -37,7 +36,7 @@ const useStyles = makeStyles((theme: Theme) =>
                 duration: theme.transitions.duration.enteringScreen,
             }),
             marginLeft: 0,
-        },
+        }
     }),
 );
 
@@ -61,12 +60,11 @@ export default function MainWindow(this: any) {
         newEditPoint: true
     });
 
-    //TODO: Set up actual queries
-    useEffect(() => {
+    const queryBackend = () => {
         fetch('/users')
             .then(res => res.json())
             .then(users => console.log(users));
-    });
+    }
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -123,7 +121,7 @@ export default function MainWindow(this: any) {
     return (
         <div className={classes.root}>
             <CssBaseline/>
-            <NavHeader open={open} onClick={handleDrawerOpen}/>
+            <NavHeader open={open} onMenuClick={handleDrawerOpen} onSendClick={queryBackend}/>
             <NavDrawer open={open} createPolygon={createPolygon} onIconClick={handleDrawerClose}
                        onPolygonOptionClick={handlePolygonOptionClick}/>
             <main
@@ -134,7 +132,8 @@ export default function MainWindow(this: any) {
                 <div className={classes.drawerHeader}/>
                 <CesiumMap addPoint={addPoint} addPolygon={addPolygon} isCreatePolygon={createPolygon}
                            isNewEditPoint={shapeState.newEditPoint} modifyPolygon={modifyPolygon}
-                           points={shapeState.points} polygonEdit={shapeState.polygonEdit} polygons={shapeState.polygons}/>
+                           points={shapeState.points} polygonEdit={shapeState.polygonEdit}
+                           polygons={shapeState.polygons}/>
             </main>
         </div>
     );
