@@ -61,9 +61,9 @@ export default function MainWindow(this: any) {
     });
 
     const queryBackend = () => {
-        fetch('/users')
+        fetch('/query')
             .then(res => res.json())
-            .then(users => console.log(users));
+            .then(res => console.log(res));
     }
 
     const handleDrawerOpen = () => {
