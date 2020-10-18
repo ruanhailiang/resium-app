@@ -1,10 +1,9 @@
-import sys
 import json
+import sys
 from datetime import datetime
-from pytz import timezone
-from skyfield.api import Topos, load, EarthSatellite
 
-ymd = [int(x) for x in sys.argv[1:]]
+from pytz import timezone
+from skyfield.api import Topos, load, EarthSatellite, utc
 
 ts = load.timescale()
 line1 = '1 25544U 98067A   14020.93268519  .00009878  00000-0  18200-3 0  5082'
@@ -13,14 +12,18 @@ satellite = EarthSatellite(line1, line2, 'ISS (ZARYA)', ts)
 
 bluffton = Topos('40.8939 N', '83.8917 W')
 
-# TODO: Get timezone from web app
 # https://rhodesmill.org/skyfield/time.html
-sgt = timezone('Asia/Singapore')
-t0 = ts.from_datetime(sgt.localize(datetime(ymd[0], ymd[1], ymd[2])))
-t1 = ts.from_datetime(sgt.localize(datetime(ymd[3], ymd[4], ymd[5])))
+startTime = datetime.utcfromtimestamp(int(sys.argv[1]) / 1000).replace(tzinfo=utc)
+endTime = datetime.utcfromtimestamp(int(sys.argv[2]) / 1000).replace(tzinfo=utc)
+
+t0 = ts.from_datetime(startTime)
+t1 = ts.from_datetime(endTime)
 t, events = satellite.find_events(bluffton, t0, t1, altitude_degrees=30.0)
 
+# TODO: Dont hardcode to sg
 output = []
+sgt = timezone('Asia/Singapore')
+output.append({"start": str(startTime), "end": str(endTime)})
 for ti, event in zip(t, events):
     name = ('rise above 30°', 'culminate', 'set below 30°')[event]
     output.append({

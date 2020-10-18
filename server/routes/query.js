@@ -4,10 +4,12 @@ const router = express.Router();
 let {PythonShell} = require('python-shell');
 
 /* Query satellite */
+
+//TODO: Add validation checks (correct date syntax, difference between dates not too big)
 router.get('/', function (req, res, next) {
     let options = {
         pythonPath: 'python',
-        args: ["2014", "6", "7", "2014", "6", "8"]
+        args: [req.query.startDate, req.query.endDate]
     };
     PythonShell.run('server/query_engine/script.py', options, function (err, results) {
         if (err) throw err;

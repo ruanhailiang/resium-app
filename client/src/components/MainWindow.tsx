@@ -69,16 +69,38 @@ export default function MainWindow(this: any) {
     );
 
     const handleStartDateChange = (date: Date | null) => {
+        //TODO: check date difference
+        if (isValidDate(date) && isValidDate(endDate)  && date! > endDate!) {
+            setEndDate(date)
+        }
         setStartDate(date);
     };
 
     const handleEndDateChange = (date: Date | null) => {
+        //TODO: check date difference
+        if (isValidDate(date) && isValidDate(endDate) && startDate! > date!) {
+            setStartDate(date)
+        }
         setEndDate(date);
     };
     const queryBackend = () => {
-        fetch('/query')
-            .then(res => res.json())
-            .then(res => console.log(res));
+        console.log(startDate, endDate);
+        if (isValidDate(startDate) && isValidDate(endDate)) {
+            let startTime = startDate!.setHours(0, 0, 0)
+            let endTime = endDate!.setHours(23, 59, 59)
+            if (endTime - startTime < 3 * 24 * 60 * 60 * 1000) {
+                fetch(`/query?startDate=${encodeURIComponent(startTime)}&endDate=${encodeURIComponent(endTime)}`)
+                    .then(res => res.json())
+                    .then(res => console.log(res));
+            } else {
+                //TODO: update ui
+                console.log("Date difference is too big")
+            }
+        }
+    }
+
+    const isValidDate = (d: Date | null) => {
+        return d !== null && !isNaN(d.getTime());
     }
 
     const handleDrawerOpen = () => {
