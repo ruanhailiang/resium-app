@@ -60,6 +60,21 @@ export default function MainWindow(this: any) {
         newEditPoint: true
     });
 
+    const [startDate, setStartDate] = React.useState<Date | null>(
+        new Date(),
+    );
+
+    const [endDate, setEndDate] = React.useState<Date | null>(
+        new Date(),
+    );
+
+    const handleStartDateChange = (date: Date | null) => {
+        setStartDate(date);
+    };
+
+    const handleEndDateChange = (date: Date | null) => {
+        setEndDate(date);
+    };
     const queryBackend = () => {
         fetch('/query')
             .then(res => res.json())
@@ -121,7 +136,9 @@ export default function MainWindow(this: any) {
     return (
         <div className={classes.root}>
             <CssBaseline/>
-            <NavHeader open={open} onMenuClick={handleDrawerOpen} onSendClick={queryBackend}/>
+            <NavHeader open={open} onMenuClick={handleDrawerOpen} onSendClick={queryBackend} startDate={startDate}
+                       onStartDateChange={handleStartDateChange} endDate={endDate}
+                       onEndDateChange={handleEndDateChange}/>
             <NavDrawer open={open} createPolygon={createPolygon} onIconClick={handleDrawerClose}
                        onPolygonOptionClick={handlePolygonOptionClick}/>
             <main

@@ -7,6 +7,8 @@ import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import clsx from "clsx";
 import {Send} from "@material-ui/icons";
+import {KeyboardDatePicker, MuiPickersUtilsProvider} from "@material-ui/pickers";
+import DateFnsUtils from '@date-io/date-fns';
 
 const drawerWidth = 240;
 
@@ -34,6 +36,9 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         hide: {
             display: 'none',
+        },
+        dateInput: {
+            color: 'white'
         }
     }),
 );
@@ -42,10 +47,22 @@ type NavHeaderProps = {
     open: boolean;
     onMenuClick: () => void;
     onSendClick: () => void;
+    startDate: Date | null;
+    endDate: Date | null;
+    onStartDateChange: (date: Date | null) => void;
+    onEndDateChange: (date: Date | null) => void;
 }
 
 export default function NavHeader(props: NavHeaderProps) {
     const classes = useStyles();
+
+    // const [selectedDate, setSelectedDate] = React.useState<Date | null>(
+    //     new Date('2014-08-18T21:11:54'),
+    // );
+    //
+    // const handleDateChange = (date: Date | null) => {
+    //     setSelectedDate(date);
+    // };
     return (
         <AppBar
             position="fixed"
@@ -66,6 +83,36 @@ export default function NavHeader(props: NavHeaderProps) {
                 <Typography variant="h6" className={classes.title} noWrap>
                     Resium App
                 </Typography>
+                <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                    <KeyboardDatePicker disableToolbar
+                                        variant="inline"
+                                        format="MM/dd/yyyy"
+                                        margin="normal"
+                                        id="start-date-picker"
+                                        label="Start Date"
+                                        value={props.startDate}
+                                        onChange={props.onStartDateChange}
+                                        KeyboardButtonProps={{
+                                            'aria-label': 'change date',
+                                        }}
+                                        InputProps={{className: classes.dateInput}}
+                                        InputLabelProps={{className: classes.dateInput}}
+                    />
+                    <KeyboardDatePicker disableToolbar
+                                        variant="inline"
+                                        format="MM/dd/yyyy"
+                                        margin="normal"
+                                        id="end-date-picker"
+                                        label="End Date"
+                                        value={props.endDate}
+                                        onChange={props.onEndDateChange}
+                                        KeyboardButtonProps={{
+                                            'aria-label': 'change date',
+                                        }}
+                                        InputProps={{className: classes.dateInput}}
+                                        InputLabelProps={{className: classes.dateInput}}
+                    />
+                </MuiPickersUtilsProvider>
                 <IconButton color="inherit" aria-label="send" onClick={props.onSendClick}>
                     <Send/>
                 </IconButton>
