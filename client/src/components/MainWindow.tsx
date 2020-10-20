@@ -5,6 +5,7 @@ import clsx from "clsx";
 import CesiumMap from "./CesiumMap";
 import NavHeader from "./NavHeader";
 import NavDrawer from "./NavDrawer";
+import ResultsModal from "./ResultsModal";
 
 const drawerWidth = 240;
 
@@ -41,15 +42,28 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export interface IShapeState {
-    points: Array<number>;
+    points: number[];
     polygons: Array<Array<number>>;
-    polygonEdit: Array<number>;
+    polygonEdit: number[];
     newEditPoint: boolean;
+}
+
+//Remove duplicate in ResultsModal
+export type TEvent = {
+    time: string;
+    name: string;
+}
+
+export interface IResultState {
+    startTime: string;
+    endTime: string;
+    events: TEvent[];
 }
 
 export default function MainWindow(this: any) {
     const classes = useStyles();
-    const [open, setOpen] = React.useState(false);
+    const [drawerOpen, setDrawerOpen] = React.useState(false);
+    const [modalOpen, setModalOpen] = React.useState(false);
     const [createPolygon, setCreatePolygon] = React.useState(false);
     // const [newEditPoint, setNewEditPoint] = React.useState(true);
 
@@ -60,6 +74,12 @@ export default function MainWindow(this: any) {
         newEditPoint: true
     });
 
+    const [resultState, setResultState] = React.useState<IResultState>({
+        startTime: "",
+        endTime: "",
+        events: []
+    })
+
     const [startDate, setStartDate] = React.useState<Date | null>(
         new Date(),
     );
@@ -68,9 +88,18 @@ export default function MainWindow(this: any) {
         new Date(),
     );
 
+    const handleModalOpen = () => {
+        setModalOpen(true);
+    };
+
+    const handleModalClose = () => {
+        setModalOpen(false);
+    };
+
+
     const handleStartDateChange = (date: Date | null) => {
         //TODO: check date difference
-        if (isValidDate(date) && isValidDate(endDate)  && date! > endDate!) {
+        if (isValidDate(date) && isValidDate(endDate) && date! > endDate!) {
             setEndDate(date)
         }
         setStartDate(date);
@@ -91,7 +120,15 @@ export default function MainWindow(this: any) {
             if (endTime - startTime < 3 * 24 * 60 * 60 * 1000) {
                 fetch(`/query?startDate=${encodeURIComponent(startTime)}&endDate=${encodeURIComponent(endTime)}`)
                     .then(res => res.json())
-                    .then(res => console.log(res));
+                    .then(res => {
+                        let queryResult = JSON.parse(res);
+                        setResultState({
+                            "startTime": queryResult["range"]["start"],
+                            "endTime":  queryResult["range"]["end"],
+                            "events": queryResult["events"]
+                        });
+                        handleModalOpen();
+                    });
             } else {
                 //TODO: update ui
                 console.log("Date difference is too big")
@@ -104,11 +141,11 @@ export default function MainWindow(this: any) {
     }
 
     const handleDrawerOpen = () => {
-        setOpen(true);
+        setDrawerOpen(true);
     };
 
     const handleDrawerClose = () => {
-        setOpen(false);
+        setDrawerOpen(false);
     };
 
     const handlePolygonOptionClick = () => {
@@ -158,14 +195,14 @@ export default function MainWindow(this: any) {
     return (
         <div className={classes.root}>
             <CssBaseline/>
-            <NavHeader open={open} onMenuClick={handleDrawerOpen} onSendClick={queryBackend} startDate={startDate}
+            <NavHeader open={drawerOpen} onMenuClick={handleDrawerOpen} onSendClick={queryBackend} startDate={startDate}
                        onStartDateChange={handleStartDateChange} endDate={endDate}
                        onEndDateChange={handleEndDateChange}/>
-            <NavDrawer open={open} createPolygon={createPolygon} onIconClick={handleDrawerClose}
+            <NavDrawer open={drawerOpen} createPolygon={createPolygon} onIconClick={handleDrawerClose}
                        onPolygonOptionClick={handlePolygonOptionClick}/>
             <main
                 className={clsx(classes.content, {
-                    [classes.contentShift]: open,
+                    [classes.contentShift]: drawerOpen,
                 })}
             >
                 <div className={classes.drawerHeader}/>
@@ -173,6 +210,7 @@ export default function MainWindow(this: any) {
                            isNewEditPoint={shapeState.newEditPoint} modifyPolygon={modifyPolygon}
                            points={shapeState.points} polygonEdit={shapeState.polygonEdit}
                            polygons={shapeState.polygons}/>
+                <ResultsModal events={resultState.events} handleClose={handleModalClose} open={modalOpen}/>
             </main>
         </div>
     );

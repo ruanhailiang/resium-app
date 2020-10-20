@@ -21,15 +21,17 @@ t1 = ts.from_datetime(endTime)
 t, events = satellite.find_events(bluffton, t0, t1, altitude_degrees=30.0)
 
 # TODO: Dont hardcode to sg
-output = []
+output = {}
 sgt = timezone('Asia/Singapore')
-output.append({"start": str(startTime), "end": str(endTime)})
+output['range'] = {"start": str(startTime), "end": str(endTime)}
+event_list = []
 for ti, event in zip(t, events):
     name = ('rise above 30°', 'culminate', 'set below 30°')[event]
-    output.append({
+    event_list.append({
         "time": ti.astimezone(sgt).strftime('%Y %b %d %H:%M:%S'),
         "name": name
     })
+output['events'] = event_list
 
 print(json.dumps(output))
 sys.stdout.flush()
