@@ -6,6 +6,9 @@ import CesiumMap from "./CesiumMap";
 import NavHeader from "./NavHeader";
 import NavDrawer from "./NavDrawer";
 import ResultsModal from "./ResultsModal";
+import {PopoverPosition} from "@material-ui/core";
+import SelectionMenu from "./SelectionMenu";
+import {CesiumMovementEvent} from "resium";
 
 const drawerWidth = 240;
 
@@ -64,9 +67,11 @@ export interface IResultState {
 
 export default function MainWindow(this: any) {
     const classes = useStyles();
-    const [drawerOpen, setDrawerOpen] = React.useState(false);
-    const [modalOpen, setModalOpen] = React.useState(false);
-    const [createPolygon, setCreatePolygon] = React.useState(false);
+    const [drawerOpen, setDrawerOpen] = React.useState<boolean>(false);
+    const [modalOpen, setModalOpen] = React.useState<boolean>(false);
+    const [createPolygon, setCreatePolygon] = React.useState<boolean>(false);
+    const [anchorPosition, setAnchorPosition] = React.useState<PopoverPosition | undefined>(undefined);
+    const [selectedPolygon, setSelectedPolygon] = React.useState<string | undefined>(undefined);
     // const [newEditPoint, setNewEditPoint] = React.useState(true);
 
     const [shapeState, setShapeState] = React.useState<IShapeState>({
@@ -174,7 +179,7 @@ export default function MainWindow(this: any) {
             points: [],
             polygons: new Map<string, number[]>(prevState.polygons.set("Polygon" + prevState.counter, prevState.points)),
             polygonEdit: [],
-            counter: prevState.counter+1
+            counter: prevState.counter + 1
         }))
     }
 
@@ -196,6 +201,37 @@ export default function MainWindow(this: any) {
         }))
     }
 
+    const handlePolygonClick = (moment: CesiumMovementEvent, entity: any) => {
+        // console.log(moment);
+        // console.log(entity);
+        console.log(entity);
+        console.log(typeof (entity));
+        console.log(moment);
+        let offset = drawerOpen ? 240 : 0;
+        setAnchorPosition({left: moment.position!.x + offset, top: moment.position!.y});
+        setSelectedPolygon(entity.name);
+        console.log(selectedPolygon);
+    }
+
+    const handleSelectionMenuClose = () => {
+        setAnchorPosition(undefined);
+    };
+
+    const handlePolygonDelete = () => {
+        if (selectedPolygon !== undefined) {
+            let newPolygonMap = new Map<string, number[]>(shapeState.polygons);
+            newPolygonMap.delete(selectedPolygon);
+            setShapeState(prevState => ({
+                        ...prevState,
+                        polygons: newPolygonMap
+                    }
+                )
+            )
+        }
+        setAnchorPosition(undefined);
+        setSelectedPolygon(undefined);
+    }
+
     return (
         <div className={classes.root}>
             <CssBaseline/>
@@ -213,8 +249,10 @@ export default function MainWindow(this: any) {
                 <CesiumMap addPoint={addPoint} addPolygon={addPolygon} isCreatePolygon={createPolygon}
                            isNewEditPoint={shapeState.newEditPoint} modifyPolygon={modifyPolygon}
                            points={shapeState.points} polygonEdit={shapeState.polygonEdit}
-                           polygons={shapeState.polygons}/>
+                           polygons={shapeState.polygons} handlePolygonClick={handlePolygonClick}/>
                 <ResultsModal events={resultState.events} handleClose={handleModalClose} open={modalOpen}/>
+                <SelectionMenu anchorPosition={anchorPosition} handleClose={handleSelectionMenuClose}
+                               handleDelete={handlePolygonDelete}/>
             </main>
         </div>
     );

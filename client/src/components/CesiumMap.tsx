@@ -6,6 +6,7 @@ import {CesiumPolygons} from "./CesiumPolygons";
 import {CesiumPolygon} from "./CesiumPolygon";
 import throttle from 'lodash.throttle';
 import {TPolygons} from "./MainWindow";
+import {PopoverPosition} from "@material-ui/core";
 
 //https://github.com/darwin-education/resium/issues/219
 
@@ -18,6 +19,7 @@ type CesiumMapProps = {
     addPoint: (lon: number, lat: number) => void;
     addPolygon: () => void;
     modifyPolygon: (lon: number, lat: number) => void;
+    handlePolygonClick: (moment: CesiumMovementEvent, entity: any) => void;
 };
 
 type Coord = {
@@ -26,7 +28,7 @@ type Coord = {
     height: number;
 }
 
-export default class CesiumMap extends React.Component<CesiumMapProps> {
+export default class CesiumMap extends React.Component<CesiumMapProps, { anchorPosition: undefined | PopoverPosition }> {
     private viewer: any;
     //type?
     private readonly modifyPolygonThrottled: any;
@@ -36,7 +38,14 @@ export default class CesiumMap extends React.Component<CesiumMapProps> {
         // this.cesium = React.createRef();
         this.modifyPolygon = this.modifyPolygon.bind(this);
         this.modifyPolygonThrottled = throttle(this.modifyPolygon, 100);
+        this.state = {anchorPosition: undefined};
     }
+
+    componentDidMount() {
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+    };
 
     getLocationFromScreenXY = (x: number, y: number): (Coord | undefined) => {
         //const scene = this.viewer.current?.cesiumElement?.scene;
@@ -66,10 +75,8 @@ export default class CesiumMap extends React.Component<CesiumMapProps> {
         }
     }
 
-    onPolygonClick = (moment: any, entity: any) => {
-        // console.log(moment);
-        // console.log(entity);
-        console.log(entity.name);
+    handlePolygonClick = (moment: CesiumMovementEvent, entity: any) => {
+        this.props.handlePolygonClick(moment, entity);
         this.viewer.zoomTo(entity);
     }
 
@@ -78,9 +85,10 @@ export default class CesiumMap extends React.Component<CesiumMapProps> {
             <Viewer ref={e => {
                 this.viewer = e ? e.cesiumElement : null;
             }} onClick={this.addPoint} onMouseMove={this.modifyPolygonThrottled}>
-                <CesiumPolygons polygons={this.props.polygons} onPolygonClick={this.onPolygonClick}/>
+                <CesiumPolygons polygons={this.props.polygons} onPolygonClick={this.handlePolygonClick}/>
                 <CesiumPoints points={this.props.points} onClick={this.props.addPolygon}/>
-                <CesiumPolygon positions={this.props.polygonEdit} name="PolygonEdit" key="PolygonEdit" onClick={() => false}/>
+                <CesiumPolygon positions={this.props.polygonEdit} name="PolygonEdit" key="PolygonEdit"
+                               handlePolygonClick={() => undefined}/>
             </Viewer>
         )
     }

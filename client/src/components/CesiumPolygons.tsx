@@ -11,5 +11,5 @@ export const CesiumPolygons: Function = (props: CesiumPolygonsProps): JSX.Elemen
         <CesiumPolygon positions={positions}
                        name={name}
                        key={name}
-                       onClick={props.onPolygonClick}/>)
+                       handlePolygonClick={props.onPolygonClick}/>)
 
