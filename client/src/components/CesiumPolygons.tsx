@@ -1,9 +1,12 @@
 import React from "react";
 import {CesiumPolygon} from "./CesiumPolygon";
 
-
-export const CesiumPolygons: Function = (props: { polygons: number[][] }): JSX.Element[] =>
+type CesiumPolygonsProps = {
+    polygons: number[][];
+    onPolygonClick: (moment: any, entity: any) => void;
+}
+export const CesiumPolygons: Function = (props: CesiumPolygonsProps): JSX.Element[] =>
     props.polygons.map((positions, index) =>
-        <CesiumPolygon positions={positions} key={"Polygon" + index}/>
+        <CesiumPolygon positions={positions} key={"Polygon" + index} onClick={props.onPolygonClick}/>
     )
 

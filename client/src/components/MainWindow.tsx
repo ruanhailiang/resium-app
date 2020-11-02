@@ -124,7 +124,7 @@ export default function MainWindow(this: any) {
                         let queryResult = JSON.parse(res);
                         setResultState({
                             "startTime": queryResult["range"]["start"],
-                            "endTime":  queryResult["range"]["end"],
+                            "endTime": queryResult["range"]["end"],
                             "events": queryResult["events"]
                         });
                         handleModalOpen();

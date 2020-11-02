@@ -65,14 +65,21 @@ export default class CesiumMap extends React.Component<CesiumMapProps> {
         }
     }
 
+    onPolygonClick = (moment: any, entity: any) => {
+        // console.log(moment);
+        // console.log(entity);
+        // console.log(entity.name);
+        this.viewer.zoomTo(entity);
+    }
+
     render() {
         return (
             <Viewer ref={e => {
                 this.viewer = e ? e.cesiumElement : null;
             }} onClick={this.addPoint} onMouseMove={this.modifyPolygonThrottled}>
-                <CesiumPolygons polygons={this.props.polygons}/>
+                <CesiumPolygons polygons={this.props.polygons} onPolygonClick={this.onPolygonClick}/>
                 <CesiumPoints points={this.props.points} onClick={this.props.addPolygon}/>
-                <CesiumPolygon positions={this.props.polygonEdit} key="PolygonEdit"/>
+                <CesiumPolygon positions={this.props.polygonEdit} key="PolygonEdit" onClick={() => false}/>
             </Viewer>
         )
     }
