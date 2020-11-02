@@ -40,12 +40,14 @@ const useStyles = makeStyles((theme: Theme) =>
         }
     }),
 );
+export type TPolygons = Map<string, number[]>
 
 export interface IShapeState {
     points: number[];
-    polygons: Array<Array<number>>;
+    polygons: TPolygons;
     polygonEdit: number[];
     newEditPoint: boolean;
+    counter: number;
 }
 
 //Remove duplicate in ResultsModal
@@ -69,9 +71,10 @@ export default function MainWindow(this: any) {
 
     const [shapeState, setShapeState] = React.useState<IShapeState>({
         points: [],
-        polygons: [],
+        polygons: new Map<string, number[]>(),
         polygonEdit: [],
-        newEditPoint: true
+        newEditPoint: true,
+        counter: 0
     });
 
     const [resultState, setResultState] = React.useState<IResultState>({
@@ -169,8 +172,9 @@ export default function MainWindow(this: any) {
         setShapeState(prevState => ({
             ...prevState,
             points: [],
-            polygons: [...prevState.polygons, prevState.points],
-            polygonEdit: []
+            polygons: new Map<string, number[]>(prevState.polygons.set("Polygon" + prevState.counter, prevState.points)),
+            polygonEdit: [],
+            counter: prevState.counter+1
         }))
     }
 

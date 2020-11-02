@@ -5,12 +5,13 @@ import {CesiumPoints} from "./CesiumPoints";
 import {CesiumPolygons} from "./CesiumPolygons";
 import {CesiumPolygon} from "./CesiumPolygon";
 import throttle from 'lodash.throttle';
+import {TPolygons} from "./MainWindow";
 
 //https://github.com/darwin-education/resium/issues/219
 
 type CesiumMapProps = {
     points: number[];
-    polygons: number[][];
+    polygons: TPolygons;
     polygonEdit: number[];
     isCreatePolygon: boolean;
     isNewEditPoint: boolean;
@@ -68,7 +69,7 @@ export default class CesiumMap extends React.Component<CesiumMapProps> {
     onPolygonClick = (moment: any, entity: any) => {
         // console.log(moment);
         // console.log(entity);
-        // console.log(entity.name);
+        console.log(entity.name);
         this.viewer.zoomTo(entity);
     }
 
@@ -79,7 +80,7 @@ export default class CesiumMap extends React.Component<CesiumMapProps> {
             }} onClick={this.addPoint} onMouseMove={this.modifyPolygonThrottled}>
                 <CesiumPolygons polygons={this.props.polygons} onPolygonClick={this.onPolygonClick}/>
                 <CesiumPoints points={this.props.points} onClick={this.props.addPolygon}/>
-                <CesiumPolygon positions={this.props.polygonEdit} key="PolygonEdit" onClick={() => false}/>
+                <CesiumPolygon positions={this.props.polygonEdit} name="PolygonEdit" key="PolygonEdit" onClick={() => false}/>
             </Viewer>
         )
     }

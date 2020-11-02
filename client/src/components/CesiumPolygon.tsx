@@ -5,11 +5,12 @@ import React from "react";
 type CesiumPolygonProps = {
     positions: number[];
     onClick: (moment: any, entity: any) => void;
+    name: string;
 }
 
 export const CesiumPolygon = (props: CesiumPolygonProps) => (
     props.positions.length > 1 ?
-        <Entity name="PolygonGraphics" description="PolygonGraphics" onClick={props.onClick}>
+        <Entity name={props.name} description="PolygonGraphics" onClick={props.onClick}>
             <PolygonGraphics
                 hierarchy={Cartesian3.fromDegreesArray(props.positions) as any}
                 material={Color.RED.withAlpha(0.28)}
