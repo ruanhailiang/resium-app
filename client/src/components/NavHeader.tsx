@@ -51,6 +51,7 @@ type NavHeaderProps = {
     endDate: Date | null;
     onStartDateChange: (date: Date | null) => void;
     onEndDateChange: (date: Date | null) => void;
+    sendDisabled: boolean;
 }
 
 export default function NavHeader(props: NavHeaderProps) {
@@ -113,7 +114,7 @@ export default function NavHeader(props: NavHeaderProps) {
                                         InputLabelProps={{className: classes.dateInput}}
                     />
                 </MuiPickersUtilsProvider>
-                <IconButton color="inherit" aria-label="send" onClick={props.onSendClick}>
+                <IconButton color="inherit" aria-label="send" onClick={props.onSendClick} disabled={props.sendDisabled}>
                     <Send/>
                 </IconButton>
             </Toolbar>

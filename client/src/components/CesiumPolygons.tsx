@@ -4,12 +4,16 @@ import {TPolygons} from "./MainWindow";
 
 type CesiumPolygonsProps = {
     polygons: TPolygons;
-    onPolygonClick: (moment: any, entity: any) => void;
+    handlePolygonRightClick: (moment: any, entity: any) => void;
+    handlePolygonLeftClick: (moment: any, entity: any) => void;
 }
 export const CesiumPolygons: Function = (props: CesiumPolygonsProps): JSX.Element[] =>
     Array.from(props.polygons.entries(), ([name, positions]) =>
         <CesiumPolygon positions={positions}
                        name={name}
                        key={name}
-                       handlePolygonClick={props.onPolygonClick}/>)
+                       handlePolygonRightClick={props.handlePolygonRightClick}
+                       handlePolygonLeftClick={props.handlePolygonLeftClick}
+        />)
+
 

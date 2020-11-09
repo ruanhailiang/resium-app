@@ -201,22 +201,24 @@ export default function MainWindow(this: any) {
         }))
     }
 
-    const handlePolygonClick = (moment: CesiumMovementEvent, entity: any) => {
-        // console.log(moment);
-        // console.log(entity);
-        console.log(entity);
-        console.log(typeof (entity));
-        console.log(moment);
+    const handlePolygonRightClick = (moment: CesiumMovementEvent, entity: any) => {
         let offset = drawerOpen ? 240 : 0;
-        setAnchorPosition({left: moment.position!.x + offset, top: moment.position!.y});
+        setAnchorPosition({left: moment.position!.x + offset, top: moment.position!.y + 64});
         setSelectedPolygon(entity.name);
-        console.log(selectedPolygon);
+    }
+
+    const handlePolygonLeftClick = (moment: CesiumMovementEvent, entity: any) => {
+        setSelectedPolygon(entity.name);
     }
 
     const handleSelectionMenuClose = () => {
         setAnchorPosition(undefined);
     };
 
+    const handleUnselectPolygon = () => {
+        setSelectedPolygon(undefined);
+    }
+    
     const handlePolygonDelete = () => {
         if (selectedPolygon !== undefined) {
             let newPolygonMap = new Map<string, number[]>(shapeState.polygons);
@@ -237,7 +239,7 @@ export default function MainWindow(this: any) {
             <CssBaseline/>
             <NavHeader open={drawerOpen} onMenuClick={handleDrawerOpen} onSendClick={queryBackend} startDate={startDate}
                        onStartDateChange={handleStartDateChange} endDate={endDate}
-                       onEndDateChange={handleEndDateChange}/>
+                       onEndDateChange={handleEndDateChange} sendDisabled={selectedPolygon === undefined}/>
             <NavDrawer open={drawerOpen} createPolygon={createPolygon} onIconClick={handleDrawerClose}
                        onPolygonOptionClick={handlePolygonOptionClick}/>
             <main
@@ -249,7 +251,7 @@ export default function MainWindow(this: any) {
                 <CesiumMap addPoint={addPoint} addPolygon={addPolygon} isCreatePolygon={createPolygon}
                            isNewEditPoint={shapeState.newEditPoint} modifyPolygon={modifyPolygon}
                            points={shapeState.points} polygonEdit={shapeState.polygonEdit}
-                           polygons={shapeState.polygons} handlePolygonClick={handlePolygonClick}/>
+                           polygons={shapeState.polygons}  handlePolygonLeftClick={handlePolygonLeftClick} handlePolygonRightClick={handlePolygonRightClick} handleUnselect={handleUnselectPolygon}/>
                 <ResultsModal events={resultState.events} handleClose={handleModalClose} open={modalOpen}/>
                 <SelectionMenu anchorPosition={anchorPosition} handleClose={handleSelectionMenuClose}
                                handleDelete={handlePolygonDelete}/>

@@ -19,7 +19,9 @@ type CesiumMapProps = {
     addPoint: (lon: number, lat: number) => void;
     addPolygon: () => void;
     modifyPolygon: (lon: number, lat: number) => void;
-    handlePolygonClick: (moment: CesiumMovementEvent, entity: any) => void;
+    handlePolygonLeftClick: (moment: CesiumMovementEvent, entity: any) => void;
+    handlePolygonRightClick: (moment: CesiumMovementEvent, entity: any) => void;
+    handleUnselect: () => void;
 };
 
 type Coord = {
@@ -75,20 +77,38 @@ export default class CesiumMap extends React.Component<CesiumMapProps, { anchorP
         }
     }
 
-    handlePolygonClick = (moment: CesiumMovementEvent, entity: any) => {
-        this.props.handlePolygonClick(moment, entity);
+    handlePolygonRightClick = (moment: CesiumMovementEvent, entity: any) => {
+        this.props.handlePolygonRightClick(moment, entity);
         this.viewer.zoomTo(entity);
+        this.viewer.selectedEntity = entity;
+    }
+
+    handlePolygonLeftClick = (moment: CesiumMovementEvent, entity: any) => {
+        this.props.handlePolygonLeftClick(moment, entity);
+        this.viewer.zoomTo(entity);
+        this.viewer.selectedEntity = entity;
+    }
+
+    handleSelectedEntityChange = () => {
+        if (this.viewer.selectedEntity === undefined) {
+            this.props.handleUnselect();
+        }
     }
 
     render() {
         return (
             <Viewer ref={e => {
                 this.viewer = e ? e.cesiumElement : null;
-            }} onClick={this.addPoint} onMouseMove={this.modifyPolygonThrottled}>
-                <CesiumPolygons polygons={this.props.polygons} onPolygonClick={this.handlePolygonClick}/>
+            }} onClick={this.addPoint} onMouseMove={this.modifyPolygonThrottled} onSelectedEntityChange={
+                this.handleSelectedEntityChange}>
+                <CesiumPolygons
+                    polygons={this.props.polygons}
+                    handlePolygonRightClick={this.handlePolygonRightClick}
+                    handlePolygonLeftClick={this.handlePolygonLeftClick}
+                />
                 <CesiumPoints points={this.props.points} onClick={this.props.addPolygon}/>
                 <CesiumPolygon positions={this.props.polygonEdit} name="PolygonEdit" key="PolygonEdit"
-                               handlePolygonClick={() => undefined}/>
+                               handlePolygonRightClick={() => undefined} handlePolygonLeftClick={() => undefined}/>
             </Viewer>
         )
     }
