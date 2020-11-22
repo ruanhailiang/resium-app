@@ -9,6 +9,7 @@ import ResultsModal from "./ResultsModal";
 import {PopoverPosition} from "@material-ui/core";
 import SelectionMenu from "./SelectionMenu";
 import {CesiumMovementEvent} from "resium";
+import {get_centroid} from "../util/PolygonUtil"
 
 const drawerWidth = 240;
 
@@ -72,7 +73,7 @@ export default function MainWindow(this: any) {
     const [createPolygon, setCreatePolygon] = React.useState<boolean>(false);
     const [anchorPosition, setAnchorPosition] = React.useState<PopoverPosition | undefined>(undefined);
     const [selectedPolygon, setSelectedPolygon] = React.useState<string | undefined>(undefined);
-    // const [newEditPoint, setNewEditPoint] = React.useState(true);
+    const [centroid, setCentroid] = React.useState<[number, number] | undefined>(undefined);
 
     const [shapeState, setShapeState] = React.useState<IShapeState>({
         points: [],
@@ -209,6 +210,12 @@ export default function MainWindow(this: any) {
 
     const handlePolygonLeftClick = (moment: CesiumMovementEvent, entity: any) => {
         setSelectedPolygon(entity.name);
+        let points = shapeState.polygons.get(entity.name);
+        if (points) {
+            let centroid = get_centroid(points);
+            console.log(centroid);
+            setCentroid(centroid);
+        }
     }
 
     const handleSelectionMenuClose = () => {
@@ -217,8 +224,9 @@ export default function MainWindow(this: any) {
 
     const handleUnselectPolygon = () => {
         setSelectedPolygon(undefined);
+        setCentroid(undefined);
     }
-    
+
     const handlePolygonDelete = () => {
         if (selectedPolygon !== undefined) {
             let newPolygonMap = new Map<string, number[]>(shapeState.polygons);
@@ -251,7 +259,9 @@ export default function MainWindow(this: any) {
                 <CesiumMap addPoint={addPoint} addPolygon={addPolygon} isCreatePolygon={createPolygon}
                            isNewEditPoint={shapeState.newEditPoint} modifyPolygon={modifyPolygon}
                            points={shapeState.points} polygonEdit={shapeState.polygonEdit}
-                           polygons={shapeState.polygons}  handlePolygonLeftClick={handlePolygonLeftClick} handlePolygonRightClick={handlePolygonRightClick} handleUnselect={handleUnselectPolygon}/>
+                           polygons={shapeState.polygons} handlePolygonLeftClick={handlePolygonLeftClick}
+                           handlePolygonRightClick={handlePolygonRightClick} handleUnselect={handleUnselectPolygon}
+                           centroid={centroid}/>
                 <ResultsModal events={resultState.events} handleClose={handleModalClose} open={modalOpen}/>
                 <SelectionMenu anchorPosition={anchorPosition} handleClose={handleSelectionMenuClose}
                                handleDelete={handlePolygonDelete}/>

@@ -7,6 +7,7 @@ import {CesiumPolygon} from "./CesiumPolygon";
 import throttle from 'lodash.throttle';
 import {TPolygons} from "./MainWindow";
 import {PopoverPosition} from "@material-ui/core";
+import {CentroidPoint} from "./CentroidPoint";
 
 //https://github.com/darwin-education/resium/issues/219
 
@@ -22,6 +23,7 @@ type CesiumMapProps = {
     handlePolygonLeftClick: (moment: CesiumMovementEvent, entity: any) => void;
     handlePolygonRightClick: (moment: CesiumMovementEvent, entity: any) => void;
     handleUnselect: () => void;
+    centroid: [number, number] | undefined;
 };
 
 type Coord = {
@@ -109,6 +111,7 @@ export default class CesiumMap extends React.Component<CesiumMapProps, { anchorP
                 <CesiumPoints points={this.props.points} onClick={this.props.addPolygon}/>
                 <CesiumPolygon positions={this.props.polygonEdit} name="PolygonEdit" key="PolygonEdit"
                                handlePolygonRightClick={() => undefined} handlePolygonLeftClick={() => undefined}/>
+                <CentroidPoint point={this.props.centroid} />
             </Viewer>
         )
     }

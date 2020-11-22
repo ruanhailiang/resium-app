@@ -12,8 +12,7 @@ export const CesiumPoints: Function = (props: CesiumPointsProps): JSX.Element[] 
         let x = props.points[i]
         let y = props.points[i + 1]
         pointGraphics.push(
-            <Entity key={"Point" + (i / 2)} position={Cartesian3.fromDegrees(x, y, 100)} name="Tokyo"
-                    description="Hello, world."
+            <Entity key={"Point" + (i / 2)} position={Cartesian3.fromDegrees(x, y, 100)}
                     onClick={props.onClick}>
                 <PointGraphics pixelSize={10}/>
             </Entity>)
