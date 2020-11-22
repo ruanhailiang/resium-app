@@ -3,6 +3,10 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+import {Ion} from "cesium";
+
+if (process.env.REACT_APP_CESIUM_API_KEY)
+    Ion.defaultAccessToken = process.env.REACT_APP_CESIUM_API_KEY;
 
 ReactDOM.render(
     <React.StrictMode>
