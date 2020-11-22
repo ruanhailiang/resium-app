@@ -122,7 +122,7 @@ export default function MainWindow(this: any) {
         setEndDate(date);
     };
     const queryBackend = () => {
-        console.log(startDate, endDate);
+        // console.log(startDate, endDate);
         if (isValidDate(startDate) && isValidDate(endDate) && centroid) {
             let startTime = startDate!.setHours(0, 0, 0)
             let endTime = endDate!.setHours(23, 59, 59)
@@ -213,7 +213,7 @@ export default function MainWindow(this: any) {
         let points = shapeState.polygons.get(entity.name);
         if (points) {
             let centroid = get_centroid(points);
-            console.log(centroid);
+            // console.log(centroid);
             setCentroid(centroid);
         }
     }
