@@ -4,7 +4,6 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
-const usersRouter = require('./routes/users');
 const queryRouter = require('./routes/query');
 
 const app = express();
@@ -26,7 +25,6 @@ app.use(express.static(path.join(__dirname, '../client/build')));
 //   res.sendFile(path.join(__dirname+'../client/build/index.html'));
 // });
 // app.use('/', indexRouter);
-app.use('/users', usersRouter);
 app.use('/query', queryRouter);
 
 // catch 404 and forward to error handler

@@ -9,7 +9,7 @@ let {PythonShell} = require('python-shell');
 router.get('/', function (req, res, next) {
     let options = {
         pythonPath: 'python',
-        args: [req.query.startDate, req.query.endDate]
+        args: [req.query.startDate, req.query.endDate, req.query.centroidX, req.query.centroidY]
     };
     PythonShell.run('server/query_engine/script.py', options, function (err, results) {
         if (err) throw err;

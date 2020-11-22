@@ -123,11 +123,11 @@ export default function MainWindow(this: any) {
     };
     const queryBackend = () => {
         console.log(startDate, endDate);
-        if (isValidDate(startDate) && isValidDate(endDate)) {
+        if (isValidDate(startDate) && isValidDate(endDate) && centroid) {
             let startTime = startDate!.setHours(0, 0, 0)
             let endTime = endDate!.setHours(23, 59, 59)
             if (endTime - startTime < 3 * 24 * 60 * 60 * 1000) {
-                fetch(`/query?startDate=${encodeURIComponent(startTime)}&endDate=${encodeURIComponent(endTime)}`)
+                fetch(`/query?startDate=${encodeURIComponent(startTime)}&endDate=${encodeURIComponent(endTime)}&centroidX=${encodeURIComponent(centroid[0])}&centroidY=${encodeURIComponent(centroid[1])}`)
                     .then(res => res.json())
                     .then(res => {
                         let queryResult = JSON.parse(res);
