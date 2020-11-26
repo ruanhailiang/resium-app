@@ -1,5 +1,5 @@
 import React from "react";
-import {Cartesian2, Math} from "cesium";
+import {Cartesian2, Math, Entity as CesiumEntity, Viewer as CesiumViewer} from "cesium";
 import {CesiumMovementEvent, Viewer} from "resium";
 import {CesiumPoints} from "./CesiumPoints";
 import {CesiumPolygons} from "./CesiumPolygons";
@@ -20,8 +20,8 @@ type CesiumMapProps = {
     addPoint: (lon: number, lat: number) => void;
     addPolygon: () => void;
     modifyPolygon: (lon: number, lat: number) => void;
-    handlePolygonLeftClick: (moment: CesiumMovementEvent, entity: any) => void;
-    handlePolygonRightClick: (moment: CesiumMovementEvent, entity: any) => void;
+    handlePolygonLeftClick: (moment: CesiumMovementEvent, entity: CesiumEntity) => void;
+    handlePolygonRightClick: (moment: CesiumMovementEvent, entity: CesiumEntity) => void;
     handleUnselect: () => void;
     centroid: [number, number] | undefined;
 };
@@ -33,9 +33,8 @@ type Coord = {
 }
 
 export default class CesiumMap extends React.Component<CesiumMapProps, { anchorPosition: undefined | PopoverPosition }> {
-    private viewer: any;
-    //type?
-    private readonly modifyPolygonThrottled: any;
+    private viewer?: CesiumViewer | null;
+    private readonly modifyPolygonThrottled: (movement: CesiumMovementEvent, target: CesiumEntity) => void;
 
     constructor(props: CesiumMapProps) {
         super(props);
@@ -53,7 +52,7 @@ export default class CesiumMap extends React.Component<CesiumMapProps, { anchorP
 
     getLocationFromScreenXY = (x: number, y: number): (Coord | undefined) => {
         //const scene = this.viewer.current?.cesiumElement?.scene;
-        const scene = this.viewer.scene
+        const scene = this.viewer?.scene
         if (!scene) return undefined;
         const ellipsoid = scene.globe.ellipsoid;
         const cartesian = scene.camera.pickEllipsoid(new Cartesian2(x, y), ellipsoid);
@@ -63,7 +62,7 @@ export default class CesiumMap extends React.Component<CesiumMapProps, { anchorP
         return {latitude, longitude, height};
     }
 
-    addPoint = (e: CesiumMovementEvent, entity: any) => {
+    addPoint = (e: CesiumMovementEvent, entity: CesiumEntity) => {
         if (this.props.isCreatePolygon && e.position) {
             let coords = this.getLocationFromScreenXY(e.position.x, e.position.y);
             if (coords) {
@@ -72,27 +71,31 @@ export default class CesiumMap extends React.Component<CesiumMapProps, { anchorP
         }
     }
 
-    modifyPolygon = (e: { endPosition: { x: number; y: number; }; }, entity: any) => {
-        let coords = this.getLocationFromScreenXY(e.endPosition.x, e.endPosition.y);
+    modifyPolygon = (e: CesiumMovementEvent, entity: CesiumEntity) => {
+        let coords = this.getLocationFromScreenXY(e.endPosition!.x, e.endPosition!.y);
         if (coords) {
             this.props.modifyPolygon(Math.toDegrees(coords.longitude), Math.toDegrees(coords.latitude));
         }
     }
 
-    handlePolygonRightClick = (moment: CesiumMovementEvent, entity: any) => {
+    handlePolygonRightClick = (moment: CesiumMovementEvent, entity: CesiumEntity) => {
         this.props.handlePolygonRightClick(moment, entity);
-        this.viewer.zoomTo(entity);
-        this.viewer.selectedEntity = entity;
+        if (this.viewer) {
+            this.viewer.zoomTo(entity);
+            this.viewer.selectedEntity = entity;
+        }
     }
 
-    handlePolygonLeftClick = (moment: CesiumMovementEvent, entity: any) => {
+    handlePolygonLeftClick = (moment: CesiumMovementEvent, entity: CesiumEntity) => {
         this.props.handlePolygonLeftClick(moment, entity);
-        this.viewer.zoomTo(entity);
-        this.viewer.selectedEntity = entity;
+        if (this.viewer) {
+            this.viewer.zoomTo(entity);
+            this.viewer.selectedEntity = entity;
+        }
     }
 
     handleSelectedEntityChange = () => {
-        if (this.viewer.selectedEntity === undefined) {
+        if (this.viewer?.selectedEntity === undefined) {
             this.props.handleUnselect();
         }
     }

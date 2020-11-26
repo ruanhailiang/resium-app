@@ -1,10 +1,10 @@
 import {CesiumMovementEvent, Entity, PointGraphics} from "resium";
-import {Cartesian3} from "cesium";
+import {Cartesian3, Entity as CesiumEntity} from "cesium";
 import React from "react";
 
 type CesiumPointsProps = {
     points: number[];
-    onClick: (e: CesiumMovementEvent, entity: any) => void;
+    onClick: (e: CesiumMovementEvent, entity: CesiumEntity) => void;
 }
 export const CesiumPoints: Function = (props: CesiumPointsProps): JSX.Element[] => {
     let pointGraphics = [];
