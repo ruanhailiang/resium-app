@@ -9,6 +9,7 @@ import ResultsModal from "./ResultsModal";
 import {PopoverPosition} from "@material-ui/core";
 import SelectionMenu from "./SelectionMenu";
 import {CesiumMovementEvent} from "resium";
+import {Entity as CesiumEntity} from "cesium";
 import {get_centroid} from "../util/PolygonUtil"
 
 const drawerWidth = 240;
@@ -66,7 +67,7 @@ export interface IResultState {
     events: TEvent[];
 }
 
-export default function MainWindow(this: any) {
+export default function MainWindow() {
     const classes = useStyles();
     const [drawerOpen, setDrawerOpen] = React.useState<boolean>(false);
     const [modalOpen, setModalOpen] = React.useState<boolean>(false);
@@ -202,15 +203,15 @@ export default function MainWindow(this: any) {
         }))
     }
 
-    const handlePolygonRightClick = (moment: CesiumMovementEvent, entity: any) => {
+    const handlePolygonRightClick = (moment: CesiumMovementEvent, entity: CesiumEntity) => {
         let offset = drawerOpen ? 240 : 0;
         setAnchorPosition({left: moment.position!.x + offset, top: moment.position!.y + 64});
         setSelectedPolygon(entity.name);
     }
 
-    const handlePolygonLeftClick = (moment: CesiumMovementEvent, entity: any) => {
+    const handlePolygonLeftClick = (moment: CesiumMovementEvent, entity: CesiumEntity) => {
         setSelectedPolygon(entity.name);
-        let points = shapeState.polygons.get(entity.name);
+        let points = shapeState.polygons.get(entity.name!);
         if (points) {
             let centroid = get_centroid(points);
             // console.log(centroid);

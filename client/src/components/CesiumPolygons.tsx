@@ -1,11 +1,13 @@
 import React from "react";
 import {CesiumPolygon} from "./CesiumPolygon";
 import {TPolygons} from "./MainWindow";
+import {CesiumMovementEvent} from "resium";
+import {Entity as CesiumEntity} from "cesium";
 
 type CesiumPolygonsProps = {
     polygons: TPolygons;
-    handlePolygonRightClick: (moment: any, entity: any) => void;
-    handlePolygonLeftClick: (moment: any, entity: any) => void;
+    handlePolygonRightClick: (moment: CesiumMovementEvent, entity: CesiumEntity) => void;
+    handlePolygonLeftClick: (moment: CesiumMovementEvent, entity: CesiumEntity) => void;
 }
 export const CesiumPolygons: Function = (props: CesiumPolygonsProps): JSX.Element[] =>
     Array.from(props.polygons.entries(), ([name, positions]) =>
@@ -15,5 +17,3 @@ export const CesiumPolygons: Function = (props: CesiumPolygonsProps): JSX.Elemen
                        handlePolygonRightClick={props.handlePolygonRightClick}
                        handlePolygonLeftClick={props.handlePolygonLeftClick}
         />)
-
-
