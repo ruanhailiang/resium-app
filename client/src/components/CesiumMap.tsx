@@ -1,12 +1,11 @@
 import React from "react";
-import {Cartesian2, Math, Entity as CesiumEntity, Viewer as CesiumViewer} from "cesium";
+import {Cartesian2, Entity as CesiumEntity, Math, Viewer as CesiumViewer} from "cesium";
 import {CesiumMovementEvent, Viewer} from "resium";
 import {CesiumPoints} from "./CesiumPoints";
 import {CesiumPolygons} from "./CesiumPolygons";
 import {CesiumPolygon} from "./CesiumPolygon";
 import throttle from 'lodash.throttle';
 import {TPolygons} from "./MainWindow";
-import {PopoverPosition} from "@material-ui/core";
 import {CentroidPoint} from "./CentroidPoint";
 
 //https://github.com/darwin-education/resium/issues/219
@@ -32,7 +31,7 @@ type Coord = {
     height: number;
 }
 
-export default class CesiumMap extends React.Component<CesiumMapProps, { anchorPosition: undefined | PopoverPosition }> {
+export default class CesiumMap extends React.Component<CesiumMapProps> {
     private viewer?: CesiumViewer | null;
     private readonly modifyPolygonThrottled: (movement: CesiumMovementEvent, target: CesiumEntity) => void;
 
@@ -41,7 +40,6 @@ export default class CesiumMap extends React.Component<CesiumMapProps, { anchorP
         // this.cesium = React.createRef();
         this.modifyPolygon = this.modifyPolygon.bind(this);
         this.modifyPolygonThrottled = throttle(this.modifyPolygon, 100);
-        this.state = {anchorPosition: undefined};
     }
 
     componentDidMount() {
@@ -114,7 +112,7 @@ export default class CesiumMap extends React.Component<CesiumMapProps, { anchorP
                 <CesiumPoints points={this.props.points} onClick={this.props.addPolygon}/>
                 <CesiumPolygon positions={this.props.polygonEdit} name="PolygonEdit" key="PolygonEdit"
                                handlePolygonRightClick={() => undefined} handlePolygonLeftClick={() => undefined}/>
-                <CentroidPoint point={this.props.centroid} />
+                <CentroidPoint point={this.props.centroid}/>
             </Viewer>
         )
     }
