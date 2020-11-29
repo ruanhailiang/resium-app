@@ -50,7 +50,6 @@ export type TPolygons = Map<string, number[]>
 export interface IShapeState {
     points: number[];
     polygons: TPolygons;
-    polygonEdit: number[];
     newEditPoint: boolean;
     counter: number;
 }
@@ -79,7 +78,6 @@ export default function MainWindow() {
     const [shapeState, setShapeState] = React.useState<IShapeState>({
         points: [],
         polygons: new Map<string, number[]>(),
-        polygonEdit: [],
         newEditPoint: true,
         counter: 0
     });
@@ -169,7 +167,6 @@ export default function MainWindow() {
         setShapeState(prevState => ({
             ...prevState,
             points: [...prevState.points, longitude, latitude],
-            polygonEdit: [...prevState.points, longitude, latitude],
             newEditPoint: true
         }))
     }
@@ -180,26 +177,7 @@ export default function MainWindow() {
             ...prevState,
             points: [],
             polygons: new Map<string, number[]>(prevState.polygons.set("Polygon" + prevState.counter, prevState.points)),
-            polygonEdit: [],
             counter: prevState.counter + 1
-        }))
-    }
-
-    const modifyPolygon = (longitude: number, latitude: number) => {
-        //potential sync issues?
-        let newPolygonEdit = [...shapeState.polygonEdit];
-        if (shapeState.newEditPoint) {
-            //add new point
-            newPolygonEdit.push(longitude, latitude);
-        } else {
-            //edit last point
-            newPolygonEdit[newPolygonEdit.length - 2] = longitude;
-            newPolygonEdit[newPolygonEdit.length - 1] = latitude;
-        }
-        setShapeState(prevState => ({
-            ...prevState,
-            polygonEdit: newPolygonEdit,
-            newEditPoint: false
         }))
     }
 
@@ -243,6 +221,13 @@ export default function MainWindow() {
         setSelectedPolygon(undefined);
     }
 
+    const setNewEditPoint = (isNewEditPoint: boolean) => {
+        setShapeState(prevState => ({
+            ...prevState,
+            newEditPoint: isNewEditPoint
+        }))
+    }
+
     return (
         <div className={classes.root}>
             <CssBaseline/>
@@ -258,11 +243,10 @@ export default function MainWindow() {
             >
                 <div className={classes.drawerHeader}/>
                 <CesiumMap addPoint={addPoint} addPolygon={addPolygon} isCreatePolygon={createPolygon}
-                           isNewEditPoint={shapeState.newEditPoint} modifyPolygon={modifyPolygon}
-                           points={shapeState.points} polygonEdit={shapeState.polygonEdit}
+                           points={shapeState.points}
                            polygons={shapeState.polygons} handlePolygonLeftClick={handlePolygonLeftClick}
                            handlePolygonRightClick={handlePolygonRightClick} handleUnselect={handleUnselectPolygon}
-                           centroid={centroid}/>
+                           centroid={centroid} isNewEditPoint={shapeState.newEditPoint} setNewEditPoint={setNewEditPoint}/>
                 <ResultsModal events={resultState.events} handleClose={handleModalClose} open={modalOpen}/>
                 <SelectionMenu anchorPosition={anchorPosition} handleClose={handleSelectionMenuClose}
                                handleDelete={handlePolygonDelete}/>

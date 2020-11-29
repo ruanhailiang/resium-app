@@ -13,16 +13,15 @@ import {CentroidPoint} from "./CentroidPoint";
 type CesiumMapProps = {
     points: number[];
     polygons: TPolygons;
-    polygonEdit: number[];
     isCreatePolygon: boolean;
     isNewEditPoint: boolean;
     addPoint: (lon: number, lat: number) => void;
     addPolygon: () => void;
-    modifyPolygon: (lon: number, lat: number) => void;
     handlePolygonLeftClick: (moment: CesiumMovementEvent, entity: CesiumEntity) => void;
     handlePolygonRightClick: (moment: CesiumMovementEvent, entity: CesiumEntity) => void;
     handleUnselect: () => void;
     centroid: [number, number] | undefined;
+    setNewEditPoint: (isNewEditPoint: boolean) => void;
 };
 
 type Coord = {
@@ -31,7 +30,11 @@ type Coord = {
     height: number;
 }
 
-export default class CesiumMap extends React.Component<CesiumMapProps> {
+type CesiumMapState = {
+    polygonEdit: number[];
+}
+
+export default class CesiumMap extends React.Component<CesiumMapProps, CesiumMapState> {
     private viewer?: CesiumViewer | null;
     private readonly modifyPolygonThrottled: (movement: CesiumMovementEvent, target: CesiumEntity) => void;
 
@@ -40,6 +43,9 @@ export default class CesiumMap extends React.Component<CesiumMapProps> {
         // this.cesium = React.createRef();
         this.modifyPolygon = this.modifyPolygon.bind(this);
         this.modifyPolygonThrottled = throttle(this.modifyPolygon, 100);
+        this.state = {
+            polygonEdit: [],
+        }
     }
 
     componentDidMount() {
@@ -70,10 +76,38 @@ export default class CesiumMap extends React.Component<CesiumMapProps> {
     }
 
     modifyPolygon = (e: CesiumMovementEvent, entity: CesiumEntity) => {
+        if (!this.props.isCreatePolygon) return;
         let coords = this.getLocationFromScreenXY(e.endPosition!.x, e.endPosition!.y);
         if (coords) {
-            this.props.modifyPolygon(Math.toDegrees(coords.longitude), Math.toDegrees(coords.latitude));
+            let longitude = Math.toDegrees(coords.longitude);
+            let latitude = Math.toDegrees(coords.latitude);
+            if (this.props.isNewEditPoint) {
+                //add new point
+                this.setState(prevState => ({
+                    polygonEdit: [...prevState.polygonEdit, longitude, latitude]
+                }))
+            } else {
+                //edit last point
+                this.setState(prevState => {
+                        const newPolygonEdit = [...prevState.polygonEdit];
+                        newPolygonEdit[newPolygonEdit.length - 2] = longitude;
+                        newPolygonEdit[newPolygonEdit.length - 1] = latitude;
+                        return {
+                            polygonEdit: newPolygonEdit,
+                        };
+                    }
+                )
+            }
+            // TEMP: set newEditPoint in parent to false
+            this.props.setNewEditPoint(false);
         }
+    }
+
+    addPolygon = () => {
+        this.setState({
+            polygonEdit: []
+        });
+        this.props.addPolygon();
     }
 
     handlePolygonRightClick = (moment: CesiumMovementEvent, entity: CesiumEntity) => {
@@ -109,8 +143,8 @@ export default class CesiumMap extends React.Component<CesiumMapProps> {
                     handlePolygonRightClick={this.handlePolygonRightClick}
                     handlePolygonLeftClick={this.handlePolygonLeftClick}
                 />
-                <CesiumPoints points={this.props.points} onClick={this.props.addPolygon}/>
-                <CesiumPolygon positions={this.props.polygonEdit} name="PolygonEdit" key="PolygonEdit"
+                <CesiumPoints points={this.props.points} onClick={this.addPolygon}/>
+                <CesiumPolygon positions={this.state.polygonEdit} name="PolygonEdit" key="PolygonEdit"
                                handlePolygonRightClick={() => undefined} handlePolygonLeftClick={() => undefined}/>
                 <CentroidPoint point={this.props.centroid}/>
             </Viewer>
