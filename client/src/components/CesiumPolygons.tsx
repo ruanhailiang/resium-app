@@ -10,8 +10,8 @@ type CesiumPolygonsProps = {
     handlePolygonLeftClick: (moment: CesiumMovementEvent, entity: CesiumEntity) => void;
 }
 export const CesiumPolygons: Function = (props: CesiumPolygonsProps): JSX.Element[] =>
-    Array.from(props.polygons.entries(), ([name, positions]) =>
-        <CesiumPolygon positions={positions}
+    Array.from(props.polygons.entries(), ([name, polygon]) =>
+        <CesiumPolygon positions={polygon.points}
                        name={name}
                        key={name}
                        handlePolygonRightClick={props.handlePolygonRightClick}

@@ -9,8 +9,8 @@ import ResultsModal from "./ResultsModal";
 import {PopoverPosition} from "@material-ui/core";
 import SelectionMenu from "./SelectionMenu";
 import {CesiumMovementEvent} from "resium";
-import {Entity as CesiumEntity} from "cesium";
-import {get_centroid} from "../util/PolygonUtil"
+import {Cartographic, Entity as CesiumEntity, Math} from "cesium";
+import {calcBoundingSphere} from "../util/PolygonUtil"
 
 const drawerWidth = 240;
 
@@ -45,7 +45,7 @@ const useStyles = makeStyles((theme: Theme) =>
         }
     }),
 );
-export type TPolygons = Map<string, number[]>
+export type TPolygons = Map<string, TPolygon>
 
 export interface IShapeState {
     points: number[];
@@ -65,6 +65,18 @@ export interface IResultState {
     events: TEvent[];
 }
 
+export type TSphere = {
+    centerX: number;
+    centerY: number;
+    radius: number;
+}
+
+//TODO: get better name, generalise for different shapes
+export type TPolygon = {
+    points: number[],
+    boundingSphere: TSphere,
+}
+
 export default function MainWindow() {
     const classes = useStyles();
     const [drawerOpen, setDrawerOpen] = React.useState<boolean>(false);
@@ -72,10 +84,10 @@ export default function MainWindow() {
     const [createPolygon, setCreatePolygon] = React.useState<boolean>(false);
     const [anchorPosition, setAnchorPosition] = React.useState<PopoverPosition | undefined>(undefined);
     const [selectedPolygon, setSelectedPolygon] = React.useState<string | undefined>(undefined);
-    const [centroid, setCentroid] = React.useState<[number, number] | undefined>(undefined);
+    const [showBoundingSphere, setShowBoundingSphere] = React.useState<boolean>(false);
     const [shapeState, setShapeState] = React.useState<IShapeState>({
         points: [],
-        polygons: new Map<string, number[]>(),
+        polygons: new Map<string, TPolygon>(),
         counter: 0
     });
 
@@ -118,12 +130,13 @@ export default function MainWindow() {
         setEndDate(date);
     };
     const queryBackend = () => {
-        // console.log(startDate, endDate);
-        if (isValidDate(startDate) && isValidDate(endDate) && centroid) {
+        //TODO: cleanup
+        if (isValidDate(startDate) && isValidDate(endDate) && selectedPolygon && shapeState.polygons.get(selectedPolygon)) {
+            let boundingSphere = shapeState.polygons.get(selectedPolygon)!.boundingSphere
             let startTime = startDate!.setHours(0, 0, 0)
             let endTime = endDate!.setHours(23, 59, 59)
             if (endTime - startTime < 3 * 24 * 60 * 60 * 1000) {
-                fetch(`/query?startDate=${encodeURIComponent(startTime)}&endDate=${encodeURIComponent(endTime)}&centroidX=${encodeURIComponent(centroid[0])}&centroidY=${encodeURIComponent(centroid[1])}`)
+                fetch(`/query?startDate=${encodeURIComponent(startTime)}&endDate=${encodeURIComponent(endTime)}&centroidX=${encodeURIComponent(boundingSphere.centerX)}&centroidY=${encodeURIComponent(boundingSphere.centerY)}`)
                     .then(res => res.json())
                     .then(res => {
                         let queryResult = JSON.parse(res);
@@ -170,11 +183,26 @@ export default function MainWindow() {
     const addPolygon = () => {
         setCreatePolygon(false);
         setShapeState(prevState => ({
-            ...prevState,
-            points: [],
-            polygons: new Map<string, number[]>(prevState.polygons.set("Polygon" + prevState.counter, prevState.points)),
-            counter: prevState.counter + 1
-        }))
+                    ...prevState,
+                    points: [],
+                    polygons: new Map<string, TPolygon>(prevState.polygons.set("Polygon" + prevState.counter, {
+                        points: prevState.points,
+                        boundingSphere: getBoundingSphere(prevState.points)
+                    })),
+                    counter: prevState.counter + 1
+                }
+            )
+        )
+    }
+
+    const getBoundingSphere = (points: number[]): TSphere => {
+        let bs = calcBoundingSphere(points);
+        let c = Cartographic.fromCartesian(bs.center);
+        return {
+            centerX: Math.toDegrees(c.longitude),
+            centerY: Math.toDegrees(c.latitude),
+            radius: bs.radius
+        }
     }
 
     const handlePolygonRightClick = (moment: CesiumMovementEvent, entity: CesiumEntity) => {
@@ -185,11 +213,12 @@ export default function MainWindow() {
 
     const handlePolygonLeftClick = (moment: CesiumMovementEvent, entity: CesiumEntity) => {
         setSelectedPolygon(entity.name);
-        let points = shapeState.polygons.get(entity.name!);
-        if (points) {
-            let centroid = get_centroid(points);
-            setCentroid(centroid);
-        }
+        // let points = shapeState.polygons.get(entity.name!);
+        // if (points) {
+        //     let bs = getBoundingSphere(points);
+        //     let c = Cartographic.fromCartesian(bs.center)
+        //     setBoundingSphere({centerX: Math.toDegrees(c.longitude), centerY: Math.toDegrees(c.latitude), radius: bs.radius, visible: false});
+        // }
     }
 
     const handleSelectionMenuClose = () => {
@@ -198,11 +227,11 @@ export default function MainWindow() {
 
     const handleUnselectPolygon = () => {
         setSelectedPolygon(undefined);
-        setCentroid(undefined);
+        setShowBoundingSphere(false);
     }
 
     const deleteFromPolygonMap = (polygons: TPolygons, selectedPolygon: string) => {
-        let newPolygonMap = new Map<string, number[]>(polygons);
+        let newPolygonMap = new Map<string, TPolygon>(polygons);
         newPolygonMap.delete(selectedPolygon);
         return newPolygonMap
     }
@@ -217,6 +246,11 @@ export default function MainWindow() {
         }
         setAnchorPosition(undefined);
         setSelectedPolygon(undefined);
+    }
+
+    const handleShowBoundingSphere = () => {
+        setShowBoundingSphere(true);
+        handleSelectionMenuClose();
     }
 
     return (
@@ -237,10 +271,11 @@ export default function MainWindow() {
                            points={shapeState.points} addPoint={addPoint}
                            handlePolygonLeftClick={handlePolygonLeftClick}
                            handlePolygonRightClick={handlePolygonRightClick} handleUnselect={handleUnselectPolygon}
-                           centroid={centroid}/>
+                           boundingSphere={selectedPolygon && showBoundingSphere ? shapeState.polygons.get(selectedPolygon)!.boundingSphere : undefined}/>
                 <ResultsModal events={resultState.events} handleClose={handleModalClose} open={modalOpen}/>
                 <SelectionMenu anchorPosition={anchorPosition} handleClose={handleSelectionMenuClose}
-                               handleDelete={handlePolygonDelete}/>
+                               handleDelete={handlePolygonDelete}
+                               handleDisplayBoundingSphere={handleShowBoundingSphere}/>
             </main>
         </div>
     );

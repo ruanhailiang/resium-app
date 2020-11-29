@@ -16,7 +16,7 @@ export const CesiumPolygon = (props: CesiumPolygonProps) => (
                 onRightClick={props.handlePolygonRightClick}>
             <PolygonGraphics
                 hierarchy={new PolygonHierarchy(Cartesian3.fromDegreesArray(props.positions))}
-                material={Color.RED.withAlpha(0.28)}
+                material={Color.RED.withAlpha(0.25)}
             />
         </Entity> : null
 );

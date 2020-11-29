@@ -1,12 +1,12 @@
 import React from "react";
-import {Cartesian2, Entity as CesiumEntity, Math, Viewer as CesiumViewer} from "cesium";
+import {Cartesian2, Cartographic, Entity as CesiumEntity, Math, Viewer as CesiumViewer} from "cesium";
 import {CesiumMovementEvent, Viewer} from "resium";
 import {CesiumPoints} from "./CesiumPoints";
 import {CesiumPolygons} from "./CesiumPolygons";
 import {CesiumPolygon} from "./CesiumPolygon";
 import throttle from 'lodash.throttle';
-import {TPolygons} from "./MainWindow";
-import {CentroidPoint} from "./CentroidPoint";
+import {TPolygons, TSphere} from "./MainWindow";
+import {BoundingSphere} from "./BoundingSphere";
 
 //https://github.com/darwin-education/resium/issues/219
 
@@ -19,14 +19,9 @@ type CesiumMapProps = {
     handlePolygonLeftClick: (moment: CesiumMovementEvent, entity: CesiumEntity) => void;
     handlePolygonRightClick: (moment: CesiumMovementEvent, entity: CesiumEntity) => void;
     handleUnselect: () => void;
-    centroid: [number, number] | undefined;
+    // centroid: [number, number] | undefined;
+    boundingSphere: TSphere | undefined;
 };
-
-type Coord = {
-    latitude: number;
-    longitude: number;
-    height: number;
-}
 
 type CesiumMapState = {
     nextPoint: [number, number] | undefined;
@@ -52,16 +47,14 @@ export default class CesiumMap extends React.Component<CesiumMapProps, CesiumMap
         });
     };
 
-    getLocationFromScreenXY = (x: number, y: number): (Coord | undefined) => {
+    getLocationFromScreenXY = (x: number, y: number): (Cartographic | undefined) => {
         //const scene = this.viewer.current?.cesiumElement?.scene;
         const scene = this.viewer?.scene
         if (!scene) return undefined;
         const ellipsoid = scene.globe.ellipsoid;
         const cartesian = scene.camera.pickEllipsoid(new Cartesian2(x, y), ellipsoid);
-        // return cartesian;
         if (!cartesian) return undefined;
-        const {latitude, longitude, height} = ellipsoid.cartesianToCartographic(cartesian);
-        return {latitude, longitude, height};
+        return ellipsoid.cartesianToCartographic(cartesian);
     }
 
     addPoint = (e: CesiumMovementEvent, entity: CesiumEntity) => {
@@ -133,7 +126,7 @@ export default class CesiumMap extends React.Component<CesiumMapProps, CesiumMap
                     positions={this.state.nextPoint ? this.props.points.concat(this.state.nextPoint) : this.props.points}
                     name="PolygonEdit" key="PolygonEdit"
                     handlePolygonRightClick={() => undefined} handlePolygonLeftClick={() => undefined}/>
-                <CentroidPoint point={this.props.centroid}/>
+                <BoundingSphere sphere={this.props.boundingSphere}/>
             </Viewer>
         )
     }
