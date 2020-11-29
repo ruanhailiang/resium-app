@@ -50,8 +50,6 @@ export type TPolygons = Map<string, number[]>
 export interface IShapeState {
     points: number[];
     polygons: TPolygons;
-    newEditPoint: boolean;
-    counter: number;
 }
 
 //Remove duplicate in ResultsModal
@@ -74,12 +72,9 @@ export default function MainWindow() {
     const [anchorPosition, setAnchorPosition] = React.useState<PopoverPosition | undefined>(undefined);
     const [selectedPolygon, setSelectedPolygon] = React.useState<string | undefined>(undefined);
     const [centroid, setCentroid] = React.useState<[number, number] | undefined>(undefined);
-
     const [shapeState, setShapeState] = React.useState<IShapeState>({
         points: [],
         polygons: new Map<string, number[]>(),
-        newEditPoint: true,
-        counter: 0
     });
 
     const [resultState, setResultState] = React.useState<IResultState>({
@@ -87,6 +82,8 @@ export default function MainWindow() {
         endTime: "",
         events: []
     })
+
+    let counter = 0;
 
     const [startDate, setStartDate] = React.useState<Date | null>(
         new Date(),
@@ -167,7 +164,6 @@ export default function MainWindow() {
         setShapeState(prevState => ({
             ...prevState,
             points: [...prevState.points, longitude, latitude],
-            newEditPoint: true
         }))
     }
 
@@ -176,9 +172,9 @@ export default function MainWindow() {
         setShapeState(prevState => ({
             ...prevState,
             points: [],
-            polygons: new Map<string, number[]>(prevState.polygons.set("Polygon" + prevState.counter, prevState.points)),
-            counter: prevState.counter + 1
+            polygons: new Map<string, number[]>(prevState.polygons.set("Polygon" + counter++, prevState.points)),
         }))
+
     }
 
     const handlePolygonRightClick = (moment: CesiumMovementEvent, entity: CesiumEntity) => {
@@ -192,7 +188,6 @@ export default function MainWindow() {
         let points = shapeState.polygons.get(entity.name!);
         if (points) {
             let centroid = get_centroid(points);
-            // console.log(centroid);
             setCentroid(centroid);
         }
     }
@@ -206,16 +201,19 @@ export default function MainWindow() {
         setCentroid(undefined);
     }
 
+    const deleteFromPolygonMap = (polygons: TPolygons, selectedPolygon: string) => {
+        let newPolygonMap = new Map<string, number[]>(polygons);
+        newPolygonMap.delete(selectedPolygon);
+        return newPolygonMap
+    }
+
     const handlePolygonDelete = () => {
         if (selectedPolygon !== undefined) {
-            let newPolygonMap = new Map<string, number[]>(shapeState.polygons);
-            newPolygonMap.delete(selectedPolygon);
             setShapeState(prevState => ({
-                        ...prevState,
-                        polygons: newPolygonMap
-                    }
-                )
-            )
+                    ...prevState,
+                    polygons: deleteFromPolygonMap(prevState.polygons, selectedPolygon)
+                }
+            ))
         }
         setAnchorPosition(undefined);
         setSelectedPolygon(undefined);
