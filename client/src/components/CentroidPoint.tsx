@@ -1,6 +1,6 @@
 import React from "react";
 import {Entity, PointGraphics} from "resium";
-import {Cartesian3} from "cesium";
+import {Cartesian3, Color} from "cesium";
 
 export const CentroidPoint: Function = (props: { point: [number, number] }): JSX.Element | null => {
     if (!props.point) {
@@ -10,7 +10,7 @@ export const CentroidPoint: Function = (props: { point: [number, number] }): JSX
     let y = props.point[1]
     return (
         <Entity key={"Centroid"} position={Cartesian3.fromDegrees(x, y, 100)}>
-            <PointGraphics pixelSize={10}/>
+            <PointGraphics pixelSize={10} color={Color.BLACK}/>
         </Entity>
     );
 }

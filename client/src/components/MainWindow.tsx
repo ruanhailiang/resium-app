@@ -221,13 +221,6 @@ export default function MainWindow() {
         setSelectedPolygon(undefined);
     }
 
-    const setNewEditPoint = (isNewEditPoint: boolean) => {
-        setShapeState(prevState => ({
-            ...prevState,
-            newEditPoint: isNewEditPoint
-        }))
-    }
-
     return (
         <div className={classes.root}>
             <CssBaseline/>
@@ -242,11 +235,11 @@ export default function MainWindow() {
                 })}
             >
                 <div className={classes.drawerHeader}/>
-                <CesiumMap addPoint={addPoint} addPolygon={addPolygon} isCreatePolygon={createPolygon}
-                           points={shapeState.points}
-                           polygons={shapeState.polygons} handlePolygonLeftClick={handlePolygonLeftClick}
+                <CesiumMap polygons={shapeState.polygons} addPolygon={addPolygon} isCreatePolygon={createPolygon}
+                           points={shapeState.points} addPoint={addPoint}
+                           handlePolygonLeftClick={handlePolygonLeftClick}
                            handlePolygonRightClick={handlePolygonRightClick} handleUnselect={handleUnselectPolygon}
-                           centroid={centroid} isNewEditPoint={shapeState.newEditPoint} setNewEditPoint={setNewEditPoint}/>
+                           centroid={centroid}/>
                 <ResultsModal events={resultState.events} handleClose={handleModalClose} open={modalOpen}/>
                 <SelectionMenu anchorPosition={anchorPosition} handleClose={handleSelectionMenuClose}
                                handleDelete={handlePolygonDelete}/>
