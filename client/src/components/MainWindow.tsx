@@ -50,6 +50,7 @@ export type TPolygons = Map<string, number[]>
 export interface IShapeState {
     points: number[];
     polygons: TPolygons;
+    counter: number;
 }
 
 //Remove duplicate in ResultsModal
@@ -75,6 +76,7 @@ export default function MainWindow() {
     const [shapeState, setShapeState] = React.useState<IShapeState>({
         points: [],
         polygons: new Map<string, number[]>(),
+        counter: 0
     });
 
     const [resultState, setResultState] = React.useState<IResultState>({
@@ -82,8 +84,6 @@ export default function MainWindow() {
         endTime: "",
         events: []
     })
-
-    let counter = 0;
 
     const [startDate, setStartDate] = React.useState<Date | null>(
         new Date(),
@@ -172,9 +172,9 @@ export default function MainWindow() {
         setShapeState(prevState => ({
             ...prevState,
             points: [],
-            polygons: new Map<string, number[]>(prevState.polygons.set("Polygon" + counter++, prevState.points)),
+            polygons: new Map<string, number[]>(prevState.polygons.set("Polygon" + prevState.counter, prevState.points)),
+            counter: prevState.counter + 1
         }))
-
     }
 
     const handlePolygonRightClick = (moment: CesiumMovementEvent, entity: CesiumEntity) => {
