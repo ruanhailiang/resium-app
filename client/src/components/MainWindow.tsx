@@ -11,6 +11,8 @@ import SelectionMenu from "./SelectionMenu";
 import {CesiumMovementEvent} from "resium";
 import {Cartographic, Entity as CesiumEntity, Math} from "cesium";
 import {calcBoundingSphere} from "../util/PolygonUtil"
+import AlertBar from "./AlertBar";
+import {Color} from "@material-ui/lab/Alert/Alert";
 
 const drawerWidth = 240;
 
@@ -65,6 +67,12 @@ export interface IResultState {
     events: TEvent[];
 }
 
+export interface IAlertState {
+    message: string;
+    severity: Color;
+}
+
+
 export type TSphere = {
     centerX: number;
     centerY: number;
@@ -105,6 +113,13 @@ export default function MainWindow() {
         new Date(),
     );
 
+    const [alertBarOpen, setAlertBarOpen] = React.useState<boolean>(false);
+    const [alertState, setAlertState] = React.useState<IAlertState>({
+            message: "",
+            severity: "success"
+        }
+    )
+
     const handleModalOpen = () => {
         setModalOpen(true);
     };
@@ -135,7 +150,7 @@ export default function MainWindow() {
             let boundingSphere = shapeState.polygons.get(selectedPolygon)!.boundingSphere
             let startTime = startDate!.setHours(0, 0, 0)
             let endTime = endDate!.setHours(23, 59, 59)
-            if (endTime - startTime < 7 * 24 * 60 * 60 * 1000) {
+            if (endTime - startTime <= 7 * 24 * 60 * 60 * 1000) {
                 fetch(`/query?startDate=${encodeURIComponent(startTime)}&endDate=${encodeURIComponent(endTime)}&centerX=${encodeURIComponent(boundingSphere.centerX)}&centerY=${encodeURIComponent(boundingSphere.centerY)}&radius=${encodeURIComponent(boundingSphere.radius)}`)
                     .then(res => res.json())
                     .then(res => {
@@ -148,8 +163,7 @@ export default function MainWindow() {
                         handleModalOpen();
                     });
             } else {
-                //TODO: update ui
-                console.log("Date difference is too big")
+                displayAlert("Date difference must be within 7 days", "error")
             }
         }
     }
@@ -166,6 +180,18 @@ export default function MainWindow() {
         setDrawerOpen(false);
     };
 
+    const displayAlert = (message: string, severity: Color) => {
+        setAlertState({
+            message: message,
+            severity: severity
+        })
+        setAlertBarOpen(true);
+    }
+
+    const handleAlertBarClose = () => {
+        setAlertBarOpen(false);
+    }
+
     const handlePolygonOptionClick = () => {
         if (createPolygon) {
             addPolygon();
@@ -173,6 +199,7 @@ export default function MainWindow() {
             setCreatePolygon(true);
         }
     }
+
     const addPoint = (longitude: number, latitude: number) => {
         setShapeState(prevState => ({
             ...prevState,
@@ -213,12 +240,6 @@ export default function MainWindow() {
 
     const handlePolygonLeftClick = (moment: CesiumMovementEvent, entity: CesiumEntity) => {
         setSelectedPolygon(entity.name);
-        // let points = shapeState.polygons.get(entity.name!);
-        // if (points) {
-        //     let bs = getBoundingSphere(points);
-        //     let c = Cartographic.fromCartesian(bs.center)
-        //     setBoundingSphere({centerX: Math.toDegrees(c.longitude), centerY: Math.toDegrees(c.latitude), radius: bs.radius, visible: false});
-        // }
     }
 
     const handleSelectionMenuClose = () => {
@@ -276,6 +297,8 @@ export default function MainWindow() {
                 <SelectionMenu anchorPosition={anchorPosition} handleClose={handleSelectionMenuClose}
                                handleDelete={handlePolygonDelete}
                                handleDisplayBoundingSphere={handleShowBoundingSphere}/>
+                <AlertBar handleClose={handleAlertBarClose} open={alertBarOpen} severity={alertState.severity}
+                          message={alertState.message}/>
             </main>
         </div>
     );
