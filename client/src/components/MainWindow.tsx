@@ -53,10 +53,10 @@ export interface IShapeState {
     counter: number;
 }
 
-//Remove duplicate in ResultsModal
 export type TEvent = {
     time: string;
-    name: string;
+    lat: string;
+    lon: string;
 }
 
 export interface IResultState {
@@ -135,8 +135,8 @@ export default function MainWindow() {
             let boundingSphere = shapeState.polygons.get(selectedPolygon)!.boundingSphere
             let startTime = startDate!.setHours(0, 0, 0)
             let endTime = endDate!.setHours(23, 59, 59)
-            if (endTime - startTime < 3 * 24 * 60 * 60 * 1000) {
-                fetch(`/query?startDate=${encodeURIComponent(startTime)}&endDate=${encodeURIComponent(endTime)}&centroidX=${encodeURIComponent(boundingSphere.centerX)}&centroidY=${encodeURIComponent(boundingSphere.centerY)}`)
+            if (endTime - startTime < 7 * 24 * 60 * 60 * 1000) {
+                fetch(`/query?startDate=${encodeURIComponent(startTime)}&endDate=${encodeURIComponent(endTime)}&centerX=${encodeURIComponent(boundingSphere.centerX)}&centerY=${encodeURIComponent(boundingSphere.centerY)}&radius=${encodeURIComponent(boundingSphere.radius)}`)
                     .then(res => res.json())
                     .then(res => {
                         let queryResult = JSON.parse(res);

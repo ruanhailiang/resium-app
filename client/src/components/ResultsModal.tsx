@@ -52,7 +52,7 @@ export default function ResultsModal(props: ResultsModalProps) {
                         <TableHead>
                             <TableRow>
                                 <TableCell>Time</TableCell>
-                                <TableCell>Name</TableCell>
+                                <TableCell>Point on Earth</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -61,7 +61,7 @@ export default function ResultsModal(props: ResultsModalProps) {
                                     <TableCell component="th" scope="row">
                                         {event.time}
                                     </TableCell>
-                                    <TableCell>{event.name}</TableCell>
+                                    <TableCell>{parseFloat(event.lon).toFixed(8)}, {parseFloat(event.lat).toFixed(8)}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
