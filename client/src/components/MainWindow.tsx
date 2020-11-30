@@ -65,6 +65,7 @@ export interface IResultState {
     startTime: string;
     endTime: string;
     events: TEvent[];
+    error: string
 }
 
 export interface IAlertState {
@@ -102,7 +103,8 @@ export default function MainWindow() {
     const [resultState, setResultState] = React.useState<IResultState>({
         startTime: "",
         endTime: "",
-        events: []
+        events: [],
+        error: ""
     })
 
     const [startDate, setStartDate] = React.useState<Date | null>(
@@ -113,7 +115,6 @@ export default function MainWindow() {
         new Date(),
     );
 
-    const [alertBarOpen, setAlertBarOpen] = React.useState<boolean>(false);
     const [alertState, setAlertState] = React.useState<IAlertState>({
             message: "",
             severity: "success"
@@ -158,9 +159,15 @@ export default function MainWindow() {
                         setResultState({
                             "startTime": queryResult["range"]["start"],
                             "endTime": queryResult["range"]["end"],
-                            "events": queryResult["events"]
+                            "events": queryResult["events"],
+                            "error": queryResult["error"]
+
                         });
-                        handleModalOpen();
+                        if (resultState.error) {
+                            displayAlert(resultState.error, "error");
+                        } else {
+                            handleModalOpen();
+                        }
                     });
             } else {
                 displayAlert("Date difference must be within 7 days", "error")
@@ -180,16 +187,19 @@ export default function MainWindow() {
         setDrawerOpen(false);
     };
 
+    // anyway to check for non-empty string?
     const displayAlert = (message: string, severity: Color) => {
         setAlertState({
             message: message,
             severity: severity
         })
-        setAlertBarOpen(true);
     }
 
     const handleAlertBarClose = () => {
-        setAlertBarOpen(false);
+        setAlertState(prevState => ({
+            ...prevState,
+            message: ""
+        }))
     }
 
     const handlePolygonOptionClick = () => {
@@ -209,17 +219,26 @@ export default function MainWindow() {
 
     const addPolygon = () => {
         setCreatePolygon(false);
-        setShapeState(prevState => ({
-                    ...prevState,
-                    points: [],
-                    polygons: new Map<string, TPolygon>(prevState.polygons.set("Polygon" + prevState.counter, {
-                        points: prevState.points,
-                        boundingSphere: getBoundingSphere(prevState.points)
-                    })),
-                    counter: prevState.counter + 1
-                }
+        if (shapeState.points.length >= 3) {
+            setShapeState(prevState => ({
+                        ...prevState,
+                        points: [],
+                        polygons: new Map<string, TPolygon>(prevState.polygons.set("Polygon" + prevState.counter, {
+                            points: prevState.points,
+                            boundingSphere: getBoundingSphere(prevState.points)
+                        })),
+                        counter: prevState.counter + 1
+                    }
+                )
             )
-        )
+        } else {
+            setShapeState(prevState => ({
+                ...prevState,
+                points: []
+            }))
+            displayAlert("Need at least 3 points", "error");
+        }
+
     }
 
     const getBoundingSphere = (points: number[]): TSphere => {
@@ -297,7 +316,8 @@ export default function MainWindow() {
                 <SelectionMenu anchorPosition={anchorPosition} handleClose={handleSelectionMenuClose}
                                handleDelete={handlePolygonDelete}
                                handleDisplayBoundingSphere={handleShowBoundingSphere}/>
-                <AlertBar handleClose={handleAlertBarClose} open={alertBarOpen} severity={alertState.severity}
+                <AlertBar handleClose={handleAlertBarClose} open={alertState.message !== ""}
+                          severity={alertState.severity}
                           message={alertState.message}/>
             </main>
         </div>

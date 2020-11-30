@@ -123,7 +123,7 @@ export default class CesiumMap extends React.Component<CesiumMapProps, CesiumMap
                 />
                 <CesiumPoints points={this.props.points} onClick={this.addPolygon}/>
                 <CesiumPolygon
-                    positions={this.state.nextPoint ? this.props.points.concat(this.state.nextPoint) : this.props.points}
+                    positions={this.state.nextPoint ? [...this.props.points, ...this.state.nextPoint]: this.props.points}
                     name="PolygonEdit" key="PolygonEdit"
                     handlePolygonRightClick={() => undefined} handlePolygonLeftClick={() => undefined}/>
                 <BoundingSphere sphere={this.props.boundingSphere}/>

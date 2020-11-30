@@ -14,7 +14,7 @@ export default function AlertBar(props: { open: boolean, handleClose: () => void
 
     return (
         <div>
-            <Snackbar open={props.open} onClose={handleClose}>
+            <Snackbar open={props.open} autoHideDuration={6000} onClose={handleClose}>
                 <Alert onClose={handleClose} severity={props.severity}>
                     {props.message}
                 </Alert>
