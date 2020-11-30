@@ -132,3 +132,4 @@ fabric.properties
 .idea/codestream.xml
 
 client/.env
+resource.txt

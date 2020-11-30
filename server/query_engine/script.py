@@ -5,10 +5,13 @@ from datetime import datetime, timedelta
 
 from skyfield.api import load, EarthSatellite, utc
 
+# TODO: Put in storage that is more permanent?
+satellites_url = 'http://celestrak.com/NORAD/elements/resource.txt'
+satellites = load.tle(satellites_url)
+# get Teleos 1 satellite, which resides in a LEO
+satellite = satellites['TELEOS 1']
+
 ts = load.timescale()
-line1 = '1 25544U 98067A   14020.93268519  .00009878  00000-0  18200-3 0  5082'
-line2 = '2 25544  51.6498 109.4756 0003572  55.9686 274.8005 15.49815350868473'
-satellite = EarthSatellite(line1, line2, 'ISS (ZARYA)', ts)
 time_step = 60  # in seconds
 field_of_regard = 536000 * math.tan(math.radians(40))  # 449757.402311
 field_of_view = 40250  # assume diameter = 80500m * 80500m
