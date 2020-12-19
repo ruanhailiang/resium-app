@@ -30,6 +30,7 @@ yarn-error.log*
 
 ### Intellij ###
 .idea/
+*.iml
 
 client/.env
 resource.txt

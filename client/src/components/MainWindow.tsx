@@ -57,8 +57,7 @@ export interface IShapeState {
 
 export type TEvent = {
     time: string;
-    lat: string;
-    lon: string;
+    distance: string;
 }
 
 export interface IResultState {
