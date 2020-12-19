@@ -18,7 +18,7 @@ class SatelliteQuery:
         sp = self.satellite.at(t).subpoint()
         return (sp.at(t) - self.centroid_topos.at(t)).distance().km
 
-    distance.step_days = 1 / (24 * 60 * 60)
+    distance.step_days = 5 / (24 * 60 * 60)
 
 
 def convert_datetime_to_str(t):

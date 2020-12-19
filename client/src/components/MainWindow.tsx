@@ -148,8 +148,8 @@ export default function MainWindow() {
         //TODO: cleanup. Catch timeout error
         if (isValidDate(startDate) && isValidDate(endDate) && selectedPolygon && shapeState.polygons.get(selectedPolygon)) {
             let boundingSphere = shapeState.polygons.get(selectedPolygon)!.boundingSphere
-            let startTime = startDate!.setHours(0, 0, 0)
-            let endTime = endDate!.setHours(23, 59, 59)
+            let startTime = startDate!.getTime()
+            let endTime = endDate!.getTime()
             if (endTime - startTime <= 24 * 60 * 60 * 1000) {
                 fetch(`/query?startDate=${encodeURIComponent(startTime)}&endDate=${encodeURIComponent(endTime)}&centerX=${encodeURIComponent(boundingSphere.centerX)}&centerY=${encodeURIComponent(boundingSphere.centerY)}&radius=${encodeURIComponent(boundingSphere.radius)}`)
                     .then(res => res.json())
