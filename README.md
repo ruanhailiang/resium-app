@@ -23,7 +23,7 @@ craco start
 ```
 
 ### Server Environment
-1. Decide upon a directory where you want to place it, and create a python virtual environment in it
+1. Decide on a directory and create a python virtual environment in it
 ```
 cd <directory_to_env>
 python -m venv satellite-env
