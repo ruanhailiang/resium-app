@@ -13,39 +13,43 @@
 
 ### Client Environment
 1. Under the `client` directory, run `yarn install` to install the client packages
-```
-cd client
-yarn install
-```
-2. Start up the web application, accessible at http://localhost:3000
-```
-craco start
-```
+   ```
+   cd client
+   yarn install
+   ```
+1. Get an API key from [Cesium](https://cesium.com/ion/), and create the following file `.env` inside the `client` directory. **Do not commit this file.**
+   ```
+   REACT_APP_CESIUM_API_KEY=<cesium_api_key>
+   ```
+1. Start up the web application, accessible at http://localhost:3000
+   ```
+   craco start
+   ```
 
 ### Server Environment
 1. Decide on a directory and create a python virtual environment in it
-```
-cd <directory_to_env>
-python -m venv satellite-env
-```
+   ```
+   cd <directory_to_env>
+   python -m venv satellite-env
+   ```
 2. Activate the virtual environment
-```
-# On Windows
-satellite-env\Scripts\activate.bat
-
-# On Linux
-source tutorial-env/bin/activate
-```
+   ```
+   # On Windows
+   satellite-env\Scripts\activate.bat
+   
+   # On Linux
+   source tutorial-env/bin/activate
+   ``` 
 3. Install the required python packages
-```
-cd <base_application_directory>
-pip install -r requirements.txt
-```
+   ```
+   cd <base_application_directory>
+   pip install -r requirements.txt
+   ```
 4. Run `yarn install` to install the necessary server packages
-```
-yarn install
-```
+   ```
+   yarn install
+   ```
 5. Start up the backend server
-```
-node server/bin/www
-```
+   ```
+   node server/bin/www
+   ```
